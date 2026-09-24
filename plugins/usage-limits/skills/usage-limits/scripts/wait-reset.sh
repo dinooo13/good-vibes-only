@@ -17,20 +17,29 @@
 #        USAGE_SH            usage script to call (default: the sibling usage.sh)
 # Exit:  0 reset reached and verdict ok (or nothing to wait for)
 #        2 usage still unavailable after the fallback wait
+#        64 bad argument or setting
 set -uo pipefail
+
+bad() { echo "wait-reset.sh: $*" >&2; exit 64; }
+is_num() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
+need_num() { if [ $# -lt 2 ] || ! is_num "$2"; then bad "$1 needs a whole number"; fi; }
 
 U=${USAGE_SH:-$(dirname "$0")/usage.sh}
 BUFFER=120; MAX_SLEEP=3600; FALLBACK=${WAIT_FALLBACK_SECS:-1800}
 while [ $# -gt 0 ]; do
   case "$1" in
-    --buffer) BUFFER=$2; shift 2;;
-    --max-sleep) MAX_SLEEP=$2; shift 2;;
-    *) echo "unknown argument: $1" >&2; exit 64;;
+    --buffer) need_num "$@"; BUFFER=$2; shift 2;;
+    --max-sleep) need_num "$@"; MAX_SLEEP=$2; shift 2;;
+    *) bad "unknown argument: $1";;
   esac
 done
+is_num "$FALLBACK" || bad "WAIT_FALLBACK_SECS must be a whole number"
+[ -z "${WAIT_SECS:-}" ] || is_num "$WAIT_SECS" || bad "WAIT_SECS must be a whole number"
+[ "$MAX_SLEEP" -ge 1 ] || MAX_SLEEP=1
 
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
-fmt() { date -r "$1" '+%Y-%m-%d %H:%M %Z'; }
+# BSD date takes -r <epoch>, GNU date takes -d @<epoch>.
+fmt() { date -r "$1" '+%Y-%m-%d %H:%M %Z' 2>/dev/null || date -d "@$1" '+%Y-%m-%d %H:%M %Z'; }
 
 if [ -n "${WAIT_SECS:-}" ]; then
   log "test mode: sleeping ${WAIT_SECS}s (WAIT_SECS)"
@@ -49,7 +58,7 @@ while true; do
   fi
 
   if ! json=$("$U" --no-cache 2>/dev/null); then
-    err=$(jq -r '.error // empty' <<<"$json" 2>/dev/null); [ -n "$err" ] || err=${json:-"usage.sh failed"}
+    err=$(printf '%s' "$json" | jq -r '.error // empty' 2>/dev/null); [ -n "$err" ] || err=${json:-"usage.sh failed"}
     if [ "$first" = 1 ]; then
       first=0; deadline=$(( now + FALLBACK ))
       log "usage.sh failed ($err). Falling back to a fixed $(( FALLBACK / 60 ))-minute wait, until $(fmt "$deadline")."
@@ -59,17 +68,18 @@ while true; do
     exit 2
   fi
 
-  verdict=$(jq -r .verdict <<<"$json")
+  verdict=$(printf '%s' "$json" | jq -r '.verdict // "unknown"' 2>/dev/null) || verdict=unknown
   if [ "$first" = 0 ] && [ "$verdict" = ok ]; then
     log "wait-reset: done, window reset, verdict ok"
     "$U" --brief   # served from usage.sh's 60s cache
     exit 0
   fi
 
-  read -r target label < <(jq -r '(.resume_epoch // .five_hour.resets_epoch) as $t
+  read -r target label < <(printf '%s' "$json" | jq -r '(.resume_epoch // .five_hour.resets_epoch) as $t
     | if $t == null then "none none"
-      else "\($t) \(if $t == .five_hour.resets_epoch then "5-hour"
-                    elif $t == .seven_day.resets_epoch then "7-day" else "weekly-model" end)" end' <<<"$json")
+      else "\($t | floor) \(if $t == .five_hour.resets_epoch then "5-hour"
+                    elif $t == .seven_day.resets_epoch then "7-day" else "weekly-model" end)" end' 2>/dev/null)
+  is_num "${target:-}" || target=none
   if [ "$target" = none ]; then
     if [ "$verdict" = ok ]; then
       log "wait-reset: done, no active usage window to wait for, verdict ok"

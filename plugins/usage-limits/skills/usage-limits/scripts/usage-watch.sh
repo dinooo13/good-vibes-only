@@ -10,44 +10,59 @@
 # Env:   USAGE_SH     usage script to call (default: the sibling usage.sh)
 # Exit:  0 threshold reached or verdict wrap_up/blocked
 #        3 usage.sh failed --max-failures times in a row: usage is unknown, don't fly blind
+#        64 bad argument
 set -uo pipefail
+
+bad() { echo "usage-watch.sh: $*" >&2; exit 64; }
+is_num() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
+need_num() { if [ $# -lt 2 ] || ! is_num "$2"; then bad "$1 needs a whole number"; fi; }
 
 U=${USAGE_SH:-$(dirname "$0")/usage.sh}
 TH=85; INTERVAL=300; MAXF=3
 while [ $# -gt 0 ]; do
   case "$1" in
-    --interval) INTERVAL=$2; shift 2;;
-    --max-failures) MAXF=$2; shift 2;;
-    [0-9]*) TH=$1; shift;;
-    *) echo "unknown argument: $1" >&2; exit 64;;
+    --interval) need_num "$@"; INTERVAL=$2; shift 2;;
+    --max-failures) need_num "$@"; MAXF=$2; shift 2;;
+    *) is_num "$1" || bad "unknown argument: $1"; TH=$1; shift;;
   esac
 done
+[ "$MAXF" -ge 1 ] || MAXF=1
 
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 
 fails=0; started=0
 while true; do
   if json=$("$U" --no-cache 2>/dev/null); then
-    fails=0
-    read -r pct verdict secs < <(jq -r '"\(.five_hour.used_pct // 0 | floor) \(.verdict) \(.five_hour.seconds_until_reset // 0)"' <<<"$json")
-    if [ "$pct" -ge "$TH" ] || [ "$verdict" != ok ]; then
+    # @tsv fields must never be empty: read collapses adjacent tabs and would shift them.
+    IFS=$'\t' read -r pct verdict secs resets resume < <(printf '%s' "$json" | jq -r '
+      [(.five_hour.used_pct // 0 | floor), (.verdict // "unknown"), (.five_hour.seconds_until_reset // 0),
+       (.five_hour.resets_local // "" | if . == "" then "?" else . end), (.resume_local // "" | if . == "" then "-" else . end)] | @tsv' 2>/dev/null)
+    if ! is_num "${pct:-}"; then
+      pct=0; verdict=unknown   # malformed output: treat like a failed check below
+    fi
+    if [ "$verdict" = unknown ]; then
+      fails=$(( fails + 1 ))
+    elif [ "$pct" -ge "$TH" ] || [ "$verdict" != ok ]; then
       log "usage-watch: triggered, 5h at ${pct}% (threshold ${TH}%), verdict=$verdict"
-      echo "seconds_until_reset=$secs (5h resets $(jq -r '.five_hour.resets_local // "?"' <<<"$json"))"
-      jq -r 'if .resume_epoch != null then "binding limit resumes at \(.resume_local)" else empty end' <<<"$json"
+      echo "seconds_until_reset=$secs (5h resets $resets)"
+      [ "$resume" != - ] && echo "binding limit resumes at $resume"
       "$U" --brief   # served from usage.sh's 60s cache
       exit 0
+    else
+      fails=0
+      [ "$started" = 0 ] && log "watching: 5h at ${pct}%, exits at ${TH}%, checks every ${INTERVAL}s"
+      started=1
+      sleep "$INTERVAL"
+      continue
     fi
-    [ "$started" = 0 ] && log "watching: 5h at ${pct}%, exits at ${TH}%, checks every ${INTERVAL}s"
-    started=1
-    sleep "$INTERVAL"
   else
     fails=$(( fails + 1 ))
-    if [ "$fails" -ge "$MAXF" ]; then
-      err=$(jq -r '.error // empty' <<<"$json" 2>/dev/null)
-      log "usage-watch: gave up, usage.sh failed $fails times in a row (${err:-no output}). Usage is unknown."
-      exit 3
-    fi
-    # retry sooner than the normal interval
-    sleep $(( INTERVAL < 60 ? INTERVAL : 60 ))
   fi
+  if [ "$fails" -ge "$MAXF" ]; then
+    err=$(printf '%s' "${json:-}" | jq -r '.error // empty' 2>/dev/null)
+    log "usage-watch: gave up, usage.sh failed $fails times in a row (${err:-no output}). Usage is unknown."
+    exit 3
+  fi
+  # retry sooner than the normal interval
+  sleep $(( INTERVAL < 60 ? INTERVAL : 60 ))
 done
