@@ -1,0 +1,11 @@
+{
+  "name": "usage-limits",
+  "version": "0.1.0",
+  "description": "Watch Claude Code subscription usage during long jobs, stop cleanly near a limit, and resume the same thread after the window resets.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": ["usage", "rate-limits", "autonomous", "long-running"]
+}
