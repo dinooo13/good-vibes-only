@@ -1,6 +1,6 @@
 # Good Vibes Only ✌️
 
-Claude Code plugins that give your agents good vibes. Useful skills that take care of the annoying parts of agent work, so your agents can stay on task and you don't have to babysit them.
+Claude Code plugins that give your agents good vibes. Useful skills that take care of the annoying parts of agent work, so your agents can stay on track and you don't have to babysit them.
 
 ```
 /plugin marketplace add dinooo13/good-vibes-only
@@ -11,14 +11,14 @@ Claude Code plugins that give your agents good vibes. Useful skills that take ca
 
 ### usage-limits
 
-Nothing kills the vibe like hitting your usage limit mid-refactor, with half the files renamed.
+Nothing kills the vibe like hitting your usage limit mid-run, with half the work completed.
 
 This skill keeps an eye on your 5-hour and 7-day usage windows while Claude works. When a limit gets close, Claude finishes the current step, commits, leaves itself a handoff note, and waits until the window resets. Then the same thread wakes up, reads the note, and carries on.
 
 ### How the waking up works:
 Claude starts a background script that sleeps until the window resets, then exits. Claude Code notifies the same thread, and Claude picks up where it left off. The wait costs no tokens.
 
-Just tell Claude to continue once your limit resets.
+Just tell Claude to continue once your limit resets to trigger.
 Claude also loads the skill on its own before long jobs.
 
 ### Requirements:
