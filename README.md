@@ -15,18 +15,19 @@ Nothing kills the vibe like hitting your usage limit mid-refactor, with half the
 
 This skill keeps an eye on your 5-hour and 7-day usage windows while Claude works. When a limit gets close, Claude finishes the current step, commits, leaves itself a handoff note, and waits until the window resets. Then the same thread wakes up, reads the note, and carries on.
 
-**How the waking up works:** Claude starts a background script that sleeps until the window resets, then exits. Claude Code notifies the same thread, and Claude picks up where it left off. The wait costs no tokens.
+### How the waking up works:
+Claude starts a background script that sleeps until the window resets, then exits. Claude Code notifies the same thread, and Claude picks up where it left off. The wait costs no tokens.
 
-- `/usage-limits:usage-limits check` shows current usage.
-- `/usage-limits:usage-limits watch 85` starts a background watcher that ends at 85% of the 5-hour window.
-- `/usage-limits:usage-limits pause` wraps up now and waits for the reset.
-
+Just tell Claude to continue once your limit resets.
 Claude also loads the skill on its own before long jobs.
 
-**Requirements:** `bash`, `curl`, `jq`, and a Claude Code login with a Pro or Max subscription.
+### Requirements:
+`bash`, `curl`, `jq`, and a Claude Code login with a Pro or Max subscription.
 
-**How it knows:** usage comes from Anthropic's OAuth usage endpoint, using the token Claude Code already stores (macOS keychain, or `~/.claude/.credentials.json` on Linux). The token goes to curl on stdin, never on a command line, and is never cached or printed.
+### How it knows:
+Usage comes from Anthropic's OAuth usage endpoint, using the token Claude Code already stores (macOS keychain, or `~/.claude/.credentials.json` on Linux). The token goes to curl on stdin, never on a command line, and is never cached or printed.
 
 The endpoint sometimes rate-limits requests. When that happens, every check on the machine backs off (1 minute, doubling up to 15). Meanwhile the skill asks [CodexBar](https://github.com/steipete/CodexBar) if it's installed. Otherwise it uses the last good result for up to 15 minutes, clearly marked as stale. CodexBar is optional.
 
-**One catch:** the wait belongs to the Claude Code session. If you close the app or the thread, nothing resumes.
+### One catch:
+The wait belongs to the Claude Code session. If you close the cli or the app, nothing resumes.
