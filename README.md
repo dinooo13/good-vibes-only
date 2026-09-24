@@ -27,4 +27,6 @@ Claude also loads the skill on its own before long jobs.
 
 The endpoint sometimes rate-limits requests. When that happens, every check on the machine backs off (1 minute, doubling up to 15). Meanwhile the skill asks [CodexBar](https://github.com/steipete/CodexBar) if it's installed. Otherwise it uses the last good result for up to 15 minutes, clearly marked as stale. CodexBar is optional.
 
+**How the waking up works:** when Claude pauses, it starts a small script as a background task and ends its turn. The script sleeps until the usage window resets, checks that usage is back, and exits. Claude Code then notifies the thread that started it, which wakes Claude up in the same conversation with all its context. The wait costs no tokens, because only a shell script is running.
+
 **One catch:** the wait belongs to the Claude Code session. If you close the app or the thread, nothing resumes.
