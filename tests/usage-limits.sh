@@ -107,6 +107,30 @@ out=$("$S/usage.sh" --no-cache)
 check "reads ~/.claude/.credentials.json when there is no keychain entry" '[ "$(jq -r .source <<<"$out")" = oauth ]' "$out"
 rm -f "$CLAUDE_CONFIG_DIR/.credentials.json"
 
+# Rate limiting: the endpoint answers 429 and codexbar is unavailable.
+reset_fakes; body 42 10
+"$S/usage.sh" --no-cache >/dev/null                        # a good result lands in the cache
+echo '{"error":{"type":"rate_limit_error"}}' >"$T/body"; echo 429 >"$T/code"
+out=$("$S/usage.sh" --no-cache); rc=$?
+check "429 falls back to the last good result, marked stale" '[ $rc = 0 ] && [ "$(jq -r .stale <<<"$out")" = true ] && [ "$(jq -r .five_hour.used_pct <<<"$out")" = 42 ]' "$out"
+check "429 starts a 60s backoff" '[ "$(cut -d" " -f2 "$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff")" = 60 ]'
+check "brief output says the result is stale" '"$S/usage.sh" --no-cache --brief | grep -q "^STALE (0m old"'
+check "no request is sent during the backoff" '[ "$(wc -l <"$T/curl-calls" | tr -d " ")" = 2 ]'
+echo "$(( $(date +%s) - 1 )) 60" >"$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff"
+"$S/usage.sh" --no-cache >/dev/null
+check "another failure after the backoff doubles it" '[ "$(cut -d" " -f2 "$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff")" = 120 ]'
+echo "$(( $(date +%s) - 1 )) 900" >"$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff"
+"$S/usage.sh" --no-cache >/dev/null
+check "the backoff is capped at 15 minutes" '[ "$(cut -d" " -f2 "$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff")" = 900 ]'
+out=$(USAGE_STALE_SECS=0 "$S/usage.sh" --no-cache); rc=$?
+check "no stale fallback past USAGE_STALE_SECS" '[ $rc = 2 ] && jq -e .error <<<"$out" >/dev/null' "$out"
+echo "$(( $(date +%s) - 1 )) 120" >"$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff"; body 43 10
+out=$("$S/usage.sh" --no-cache)
+check "a success clears the backoff" '[ ! -f "$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff" ] && [ "$(jq -r .stale <<<"$out")" = false ]' "$out"
+reset_fakes; touch "$T/no-keychain"
+"$S/usage.sh" --no-cache >/dev/null
+check "a missing token does not start a backoff" '[ ! -f "$CLAUDE_CONFIG_DIR/usage-limits/oauth-backoff" ] && [ ! -f "$T/curl-calls" ]'
+
 "$S/usage.sh" --nope 2>/dev/null; rc=$?
 check "unknown argument exits 64" '[ $rc = 64 ]'
 USAGE_WRAP_PCT='a[$(touch '"$T"'/pwned)]' "$S/usage.sh" 2>/dev/null; rc=$?

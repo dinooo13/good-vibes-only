@@ -2,12 +2,15 @@
 # Print Claude Code subscription usage (5-hour + 7-day windows) as normalized JSON.
 # Source order: Anthropic OAuth usage endpoint (token from Claude Code's credential store:
 # the macOS keychain, else $CLAUDE_CONFIG_DIR/.credentials.json), then
-# `codexbar usage --provider claude --format json` as fallback.
+# `codexbar usage --provider claude --format json` as fallback (optional), then the last good
+# result if it is recent enough (marked "stale": true). The endpoint rate-limits (429), so after
+# a failed request every caller on this machine skips it for a backoff that doubles, 60s to 15m.
 #
 # Usage: usage.sh [--brief] [--no-cache]
 # Env:   USAGE_WRAP_PCT   (default 90)  -> verdict "wrap_up" at/above this
 #        USAGE_BLOCK_PCT  (default 100) -> verdict "blocked" at/above this
 #        USAGE_CACHE_SECS (default 60)
+#        USAGE_STALE_SECS (default 900) oldest last-good result to fall back to; 0 disables
 #        CLAUDE_CONFIG_DIR (default ~/.claude) holds the cache and, off macOS, the credentials
 # Exit:  0 usage printed
 #        2 usage unavailable; prints {"error": ...}
@@ -21,9 +24,11 @@ is_num() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
 WRAP=${USAGE_WRAP_PCT:-90}
 BLOCK=${USAGE_BLOCK_PCT:-100}
 CACHE_SECS=${USAGE_CACHE_SECS:-60}
+STALE_SECS=${USAGE_STALE_SECS:-900}
 is_num "$WRAP" || bad "USAGE_WRAP_PCT must be a whole number"
 is_num "$BLOCK" || bad "USAGE_BLOCK_PCT must be a whole number"
 is_num "$CACHE_SECS" || bad "USAGE_CACHE_SECS must be a whole number"
+is_num "$STALE_SECS" || bad "USAGE_STALE_SECS must be a whole number"
 
 BRIEF=0; NOCACHE=0
 for a in "$@"; do
@@ -37,6 +42,7 @@ done
 CONFIG_DIR=${CLAUDE_CONFIG_DIR:-$HOME/.claude}
 CACHE_DIR=$CONFIG_DIR/usage-limits
 CACHE=$CACHE_DIR/usage-cache.json   # not cache.json: older copies of this skill use that layout
+BACKOFF=$CACHE_DIR/oauth-backoff    # "<next attempt epoch> <current delay secs>"
 mkdir -p "$CACHE_DIR"
 chmod 700 "$CACHE_DIR" 2>/dev/null || true   # the cache includes billing data (extra_usage)
 
@@ -73,9 +79,32 @@ read_token() {
   printf '%s' "$tok"
 }
 
+# Atomic write: watchers and direct checks run in parallel.
+write_file() { # <path> <content>
+  local tmp
+  tmp=$(mktemp "$1.XXXXXX" 2>/dev/null) || return 0
+  { printf '%s\n' "$2" >"$tmp" && mv -f "$tmp" "$1"; } 2>/dev/null || rm -f "$tmp"
+}
+
+oauth_backed_off() {
+  local next delay
+  [ -f "$BACKOFF" ] || return 1
+  read -r next delay <"$BACKOFF" 2>/dev/null || return 1
+  is_num "${next:-}" && [ "$now" -lt "$next" ]
+}
+
+oauth_failed() {
+  local next delay=0
+  [ -f "$BACKOFF" ] && read -r next delay <"$BACKOFF" 2>/dev/null
+  is_num "${delay:-}" || delay=0
+  delay=$(( delay * 2 )); [ "$delay" -ge 60 ] || delay=60; [ "$delay" -le 900 ] || delay=900
+  write_file "$BACKOFF" "$(( now + delay )) $delay"
+}
+
 fetch_oauth() {
   local tok resp code
   tok=$(read_token) || return 1
+  oauth_backed_off && return 1
   # curl reads the Authorization header from a config on stdin (-K -), so the token never
   # appears in its argv. No -L: the header must not follow a redirect to another host.
   resp=$(printf 'header = "Authorization: Bearer %s"\n' "$tok" \
@@ -84,6 +113,7 @@ fetch_oauth() {
         "https://api.anthropic.com/api/oauth/usage" 2>/dev/null) || return 1
   code=${resp##*$'\n'}
   [ "$code" = "200" ] || return 1
+  rm -f "$BACKOFF"
   printf '%s' "${resp%$'\n'*}" | jq -ce --argjson now "$now" "$JQ_DEFS"'
     def win: if . == null then null else {
       used_pct: (.utilization // 0),
@@ -124,14 +154,22 @@ if [ "$NOCACHE" = 0 ] && [ -f "$CACHE" ]; then
   fi
 fi
 if [ -z "$raw" ]; then
-  raw=$(fetch_oauth) || raw=$(fetch_codexbar) || raw=""
-  if [ -z "$raw" ]; then
-    echo '{"error":"could not fetch usage (no Claude Code OAuth token or the endpoint failed, and codexbar unavailable)"}'
-    exit 2
+  if ! raw=$(fetch_oauth); then
+    # Only a request that was actually sent counts toward the backoff (not a missing token).
+    if read_token >/dev/null && ! oauth_backed_off; then oauth_failed; fi
+    raw=$(fetch_codexbar) || raw=""
   fi
-  # Write atomically: a watcher and a direct check may run at the same time.
-  if tmp=$(mktemp "$CACHE.XXXXXX" 2>/dev/null); then
-    { printf '%s\n' "$raw" >"$tmp" && mv -f "$tmp" "$CACHE"; } 2>/dev/null || rm -f "$tmp"
+  if [ -n "$raw" ]; then
+    write_file "$CACHE" "$raw"
+  else
+    # Last resort: the last good result, if recent. Marked stale so callers keep a margin.
+    fetched=$(jq -r '.fetched_at // 0 | floor' "$CACHE" 2>/dev/null) || fetched=0
+    if is_num "$fetched" && [ "$fetched" -gt 0 ] && [ "$fetched" -le "$now" ] && [ $(( now - fetched )) -lt "$STALE_SECS" ]; then
+      raw=$(jq -c --argjson age $(( now - fetched )) '. + {stale: true, age_secs: $age}' "$CACHE")
+    else
+      echo '{"error":"could not fetch usage (no Claude Code OAuth token, or the endpoint failed or is rate-limited; codexbar unavailable; no recent result to fall back to)"}'
+      exit 2
+    fi
   fi
 fi
 
@@ -151,7 +189,8 @@ out=$(printf '%s' "$raw" | jq -c --argjson now "$now" --argjson wrap "$WRAP" --a
       verdict: (if $locked or $worst >= $block then "blocked"
                 elif $worst >= $wrap then "wrap_up" else "ok" end),
       resume_epoch: $resume_epoch,
-      resume_buffer_secs: 120 }')
+      resume_buffer_secs: 120 }
+  | .stale = (.stale // false)')
 
 label() { if [ "$1" = - ]; then echo ""; else fmt_epoch "$1" '+%Y-%m-%d %H:%M %Z'; fi; }
 IFS=$'\t' read -r fh sd re base buf < <(printf '%s' "$out" | jq -r '
@@ -172,7 +211,7 @@ if [ "$base" != - ]; then
 fi
 
 if [ "$BRIEF" = 1 ]; then
-  printf '%s' "$out" | jq -r '"verdict=\(.verdict)  5h: \(.five_hour.used_pct // "?")% used (resets \(.five_hour.resets_local // "n/a"), in \(((.five_hour.seconds_until_reset // 0)/60)|floor)m)  7d: \(.seven_day.used_pct // "?")% used (resets \(.seven_day.resets_local // "n/a"))" + "  | resume at: \(.resume_cron_local // "n/a") (cron: \(.resume_cron // "n/a"))"'
+  printf '%s' "$out" | jq -r '(if .stale then "STALE (\(.age_secs / 60 | floor)m old, endpoint unavailable)  " else "" end) + "verdict=\(.verdict)  5h: \(.five_hour.used_pct // "?")% used (resets \(.five_hour.resets_local // "n/a"), in \(((.five_hour.seconds_until_reset // 0)/60)|floor)m)  7d: \(.seven_day.used_pct // "?")% used (resets \(.seven_day.resets_local // "n/a"))" + "  | resume at: \(.resume_cron_local // "n/a") (cron: \(.resume_cron // "n/a"))"'
 else
   printf '%s' "$out" | jq .
 fi

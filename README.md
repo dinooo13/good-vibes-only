@@ -19,7 +19,7 @@ Keeps long autonomous jobs from running into a subscription limit mid-step. The 
 
 Claude also loads the skill on its own before long jobs.
 
-Requirements: `bash`, `curl`, `jq`, and a Claude Code login with a Pro or Max subscription. Usage comes from Anthropic's OAuth usage endpoint with the token Claude Code already stores (macOS keychain, or `~/.claude/.credentials.json` on Linux). The token is passed to curl on stdin, never on a command line, and is not cached or printed. [CodexBar](https://github.com/steipete/CodexBar) serves as a fallback source if it is installed.
+Requirements: `bash`, `curl`, `jq`, and a Claude Code login with a Pro or Max subscription. Usage comes from Anthropic's OAuth usage endpoint with the token Claude Code already stores (macOS keychain, or `~/.claude/.credentials.json` on Linux). The token is passed to curl on stdin, never on a command line, and is not cached or printed. The endpoint rate-limits, so after a failed request all checks on the machine back off (1 minute, doubling up to 15) and fall back to [CodexBar](https://github.com/steipete/CodexBar) if it is installed, otherwise to the last good result for up to 15 minutes, marked stale. CodexBar is optional.
 
 Background waits live and die with the Claude Code session: if the app or thread closes, nothing resumes.
 
