@@ -1,6 +1,6 @@
 # Good Vibes Only ✌️
 
-A Claude Code plugin marketplace with a simple policy: plugins get in if they make agents calmer, tidier, or less likely to fall over halfway through a job.
+Claude Code plugins that give your agents good vibes. Every plugin here makes agents a little calmer, tidier, or less likely to fall over halfway through a job. Happy agent, happy human.
 
 ```
 /plugin marketplace add dinooo13/good-vibes-only
