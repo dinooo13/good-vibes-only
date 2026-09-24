@@ -1,6 +1,6 @@
 # Good Vibes Only ✌️
 
-Claude Code plugins that give your agents good vibes. Every plugin here makes agents a little calmer, tidier, or less likely to fall over halfway through a job. Happy agent, happy human.
+Claude Code plugins that give your agents good vibes. Small, focused skills that take care of the annoying parts of agent work, so your agents can stay on the task and you don't have to babysit them.
 
 ```
 /plugin marketplace add dinooo13/good-vibes-only
