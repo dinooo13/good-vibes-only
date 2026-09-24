@@ -1,7 +1,6 @@
 ---
 name: usage-limits
-description: Check Claude Code subscription usage limits (5-hour and 7-day windows), watch usage in the background during long jobs, and when a limit is close or exhausted, save state, stop cleanly, and wait in the background until the window resets so the same thread wakes up and continues. Use before/during long autonomous or orchestration jobs (especially ones running subagents), when the user asks about usage or limits, or says "watch my usage", "pause until reset", or "wait until the limit resets".
-argument-hint: "[check | watch [pct] | pause]"
+description: Check Claude Code subscription usage limits (5-hour and 7-day windows), watch usage in the background during long jobs, and when a limit is close or exhausted, save state, stop cleanly, and wait in the background until the window resets so the same thread wakes up and continues. Use before/during long autonomous or orchestration jobs (especially ones running subagents), when the user asks about usage or limits, or says "watch my usage", "continue on next session window", or "continie when my limit resets".
 allowed-tools:
   - Bash(${CLAUDE_SKILL_DIR}/scripts/usage.sh *)
   - Bash(${CLAUDE_SKILL_DIR}/scripts/usage-watch.sh *)
@@ -10,7 +9,7 @@ allowed-tools:
 
 # usage-limits
 
-Scripts live in `${CLAUDE_SKILL_DIR}/scripts/`. Always call them by that full path, with at least one argument as shown below (the pre-approved permission rules match that form).
+Scripts live in `${CLAUDE_SKILL_DIR}/scripts/`. Always call them by that full path, with at least one argument as shown below (the pre-approved permission rules match that form). All scripts exit 64 on a bad argument; fix the call instead of retrying it.
 
 - `usage.sh [--brief] [--no-cache]` prints usage JSON. It calls Anthropic's OAuth usage endpoint with Claude Code's own login (macOS keychain, or `~/.claude/.credentials.json` elsewhere) with a 60s cache. The token never appears in a command line or in output. The endpoint rate-limits (HTTP 429); after a failure every caller on the machine backs off (60s, doubling to 15m) and uses `codexbar` if installed (optional), else the last good result up to 15 min old, marked `"stale": true` with `age_secs` (the brief line starts with `STALE`). Fields: `verdict` (`ok` / `wrap_up` / `blocked`), `five_hour.{used_pct,seconds_until_reset,resets_local}`, `seven_day.*`, `resume_local` (reset of the window that is exhausted, if any), and `resume_cron_local` (the time to resume: reset + about 2 min). Thresholds: `USAGE_WRAP_PCT` (default 90), `USAGE_BLOCK_PCT` (default 100). Exits 2 with `{"error": ...}` when usage is unavailable. Treat a stale `ok` as roughly right, not exact: don't start a large step on it when the 5-hour window is already above 75%.
 - `usage-watch.sh [threshold] [--interval 300] [--max-failures 3]` polls usage. It exits 0 when 5-hour usage reaches `threshold` (default 85) or the verdict is no longer `ok`, and prints `seconds_until_reset` plus the usage line. It exits 3 if `usage.sh` fails several times in a row.
@@ -55,13 +54,3 @@ Run the watcher and the waiter with the Bash tool's `run_in_background: true`. A
 ## Fallback: CronCreate
 
 Use `CronCreate` only if background Bash is not available. Load it via `ToolSearch`, then call it with `cron` = `resume_cron` from `usage.sh` (a local one-shot) and `recurring: false`. Put the concrete next step in the prompt. Check `CronList` first so that only one job exists. Cron jobs are in-memory and die with the session too.
-
-## Direct invocation
-
-Arguments from the user: `$ARGUMENTS` (empty when you loaded this skill yourself).
-
-- none or `check`: run `usage.sh --brief` and report.
-- `watch [pct]`: start `usage-watch.sh [pct]` in the background (step 1). Default pct is 85.
-- `pause`: do step 2 now, then wait for the reset.
-
-All scripts exit 64 on a bad argument; fix the call instead of retrying it.
