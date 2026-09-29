@@ -3,7 +3,7 @@
 # Start it with the Bash tool's run_in_background: true. When it exits, the harness wakes the
 # thread that started it. Costs no tokens while waiting (sleep + local usage.sh calls only).
 #
-# Which reset: the latest reset among windows at/above USAGE_WRAP_PCT (usage.sh's resume_epoch,
+# Which reset: the latest reset among windows at/above their wrap-up % (usage.sh's resume_epoch,
 # e.g. the 7-day window when that is the one exhausted), otherwise the 5-hour reset.
 # Sleeps in chunks of at most --max-sleep and re-checks the wall clock, because macOS `sleep`
 # does not count time while the machine is asleep. After the reset it re-checks usage and keeps

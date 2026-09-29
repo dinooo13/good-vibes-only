@@ -76,7 +76,15 @@ check "wrap_up at 92%" '[ "$(jq -r .verdict <<<"$out")" = wrap_up ] && [ "$(jq -
 
 reset_fakes; body 50 95
 out=$("$S/usage.sh" --no-cache)
-check "7-day window at 95% makes it the binding reset" '[ "$(jq -r .resume_epoch <<<"$out")" = $in3d ]' "$out"
+check "7-day window at 95% makes it the binding reset" '[ "$(jq -r .verdict <<<"$out")" = wrap_up ] && [ "$(jq -r .resume_epoch <<<"$out")" = $in3d ]' "$out"
+reset_fakes; body 50 93
+out=$("$S/usage.sh" --no-cache)
+check "7-day window at 93% is still ok (weekly wraps up at 95)" '[ "$(jq -r .verdict <<<"$out")" = ok ] && [ "$(jq -r .resume_epoch <<<"$out")" = null ]' "$out"
+out=$(USAGE_WRAP_7D_PCT=90 "$S/usage.sh")
+check "USAGE_WRAP_7D_PCT sets the weekly threshold" '[ "$(jq -r .verdict <<<"$out")" = wrap_up ] && [ "$(jq -r .resume_epoch <<<"$out")" = $in3d ]' "$out"
+reset_fakes; body 92 96
+out=$("$S/usage.sh" --no-cache)
+check "with both windows full, resume waits for the later reset" '[ "$(jq -r .resume_epoch <<<"$out")" = $in3d ]' "$out"
 
 reset_fakes; body 100 30
 check "blocked at 100%" '[ "$("$S/usage.sh" --no-cache | jq -r .verdict)" = blocked ]'
@@ -135,6 +143,8 @@ check "a missing token does not start a backoff" '[ ! -f "$CLAUDE_CONFIG_DIR/usa
 check "unknown argument exits 64" '[ $rc = 64 ]'
 USAGE_WRAP_PCT='a[$(touch '"$T"'/pwned)]' "$S/usage.sh" 2>/dev/null; rc=$?
 check "non-numeric threshold exits 64 and runs nothing" '[ $rc = 64 ] && [ ! -e "$T/pwned" ]'
+USAGE_WRAP_7D_PCT=x "$S/usage.sh" 2>/dev/null; rc=$?
+check "non-numeric weekly threshold exits 64" '[ $rc = 64 ]'
 
 # --- usage-watch.sh ----------------------------------------------------------------------
 fake_usage() { # verdict pct [fail]
@@ -235,9 +245,9 @@ check "hook gives the heads-up again after usage dropped" '[ -n "$out" ]' "$out"
 fake_usage blocked 100
 out=$(USAGE_HOOK_INTERVAL=0 hook PostToolUse agent-1)
 check "hook stays silent inside subagents" '[ -z "$out" ]' "$out"
-printf '#!/bin/bash\n[ "${1:-}" = --brief ] && { echo brief; exit 0; }\necho "{\\"verdict\\":\\"ok\\",\\"five_hour\\":{\\"used_pct\\":20},\\"worst_used_pct\\":88}"\n' >"$T/fake-usage"
+printf '#!/bin/bash\n[ "${1:-}" = --brief ] && { echo brief; exit 0; }\necho "{\\"verdict\\":\\"ok\\",\\"five_hour\\":{\\"used_pct\\":20},\\"seven_day\\":{\\"used_pct\\":91}}"\n' >"$T/fake-usage"
 out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s2"}' | "$H")
-check "hook gives a heads-up when the 7-day window is at 88%" 'jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "highest window at 88%"' "$out"
+check "hook gives a heads-up when the 7-day window is at 91%" 'jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "weekly at 91%"' "$out"
 out=$(USAGE_HOOK=0 hook UserPromptSubmit)
 check "USAGE_HOOK=0 turns the hook off" '[ -z "$out" ]' "$out"
 fake_usage ok 10 fail

@@ -14,10 +14,10 @@
 #
 # Env: USAGE_HOOK           0 turns the hook off
 #      USAGE_HOOK_INTERVAL  min seconds between checks per session (default 120)
-#      USAGE_HOOK_WARN_PCT  5-hour % for a heads-up (default 75); any window within 5 points of
-#                           the wrap-up % gets one too
-#      USAGE_WRAP_PCT       % of any window to wrap up at (default 90, shared with usage.sh and
-#                           usage-watch.sh: the hook follows usage.sh's wrap_up verdict)
+#      USAGE_HOOK_WARN_PCT  5-hour % for a heads-up (default 75); the weekly windows get one
+#                           5 points before their wrap-up %
+#      USAGE_WRAP_7D_PCT    weekly % to wrap up at (default 95). The hook follows usage.sh's
+#                           wrap_up verdict, which uses this and USAGE_WRAP_PCT (5-hour, default 90)
 #      USAGE_HOOK_REMIND    seconds before a wrap-up nudge repeats (default 600)
 #      USAGE_STALE_SECS     oldest cached result to act on (default 900, same as usage.sh)
 #      USAGE_SH             usage script to call (default: the skill's usage.sh)
@@ -31,7 +31,7 @@ is_num() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
 num() { if is_num "$1"; then echo "$1"; else echo "$2"; fi; }
 INTERVAL=$(num "${USAGE_HOOK_INTERVAL:-}" 120)
 WARN=$(num "${USAGE_HOOK_WARN_PCT:-}" 75)
-WRAP=$(num "${USAGE_WRAP_PCT:-}" 90)
+WRAP_7D=$(num "${USAGE_WRAP_7D_PCT:-}" 95)
 REMIND=$(num "${USAGE_HOOK_REMIND:-}" 600)
 MAXAGE=$(num "${USAGE_STALE_SECS:-}" 900)
 U=${USAGE_SH:-$(dirname "$0")/../skills/usage-limits/scripts/usage.sh}
@@ -77,20 +77,21 @@ fi
 # Served from the cache: usage.sh only fetches when the cache is older than USAGE_CACHE_SECS.
 export USAGE_CACHE_SECS=$(( MAXAGE + 60 ))
 json=$("$U" 2>/dev/null) || exit 0   # usage unknown: stay quiet, the skill handles that case
-IFS=$'\t' read -r verdict pct worst < <(printf '%s' "$json" | jq -r '
-  [(.verdict // "unknown"), (.five_hour.used_pct // 0 | floor), (.worst_used_pct // 0 | floor)] | @tsv' 2>/dev/null)
-is_num "${pct:-}" && is_num "${worst:-}" || exit 0
+IFS=$'\t' read -r verdict pct week < <(printf '%s' "$json" | jq -r '
+  [(.verdict // "unknown"), (.five_hour.used_pct // 0 | floor),
+   ([.seven_day, .seven_day_opus, .seven_day_sonnet] | map(select(. != null) | .used_pct) | max // 0 | floor)] | @tsv' 2>/dev/null)
+is_num "${pct:-}" && is_num "${week:-}" || exit 0
 case "$verdict" in
   blocked) new=3;;
   wrap_up) new=2;;
-  ok) if [ "$pct" -ge "$WARN" ] || [ "$worst" -ge $(( WRAP - 5 )) ]; then new=1; else new=0; fi;;
+  ok) if [ "$pct" -ge "$WARN" ] || [ "$week" -ge $(( WRAP_7D - 5 )) ]; then new=1; else new=0; fi;;
   *) exit 0;;
 esac
 
 if [ "$new" -gt "$level" ] || { [ "$new" -ge 2 ] && [ $(( now - nudged )) -ge "$REMIND" ]; }; then
   brief=$("$U" --brief 2>/dev/null) || brief="5h at ${pct}%, verdict=$verdict"
   case "$new" in
-    1) msg="Usage is getting high (5-hour window at ${pct}%, highest window at ${worst}%). If more than a few steps of work remain, load the usage-limits skill and start its watcher (usage-watch.sh) unless one is already running. Check usage before starting any large step.";;
+    1) msg="Usage is getting high (5-hour window at ${pct}%, weekly at ${week}%). If more than a few steps of work remain, load the usage-limits skill and start its watcher (usage-watch.sh) unless one is already running. Check usage before starting any large step.";;
     2) msg="Usage is close to the limit. Load the usage-limits skill now and follow its wrap-up step: finish only the current step, start no new subagents or large steps, commit, write the handoff note, start wait-reset.sh in the background, tell the user, and end the turn.";;
     3) msg="A usage limit is reached. Load the usage-limits skill now and follow its wrap-up step with as little work as possible: save state, start wait-reset.sh in the background, tell the user, and end the turn.";;
   esac
