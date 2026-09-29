@@ -21,6 +21,12 @@ Claude starts a background script that sleeps until the window resets, then exit
 Just tell Claude to continue once your limit resets to trigger.
 Claude also loads the skill on its own before long jobs.
 
+### The hook:
+Claude can't feel time passing, so the plugin adds a hook as a backstop. Every 2 minutes at most, after a tool call or when you send a message, it looks at the cached usage. It stays silent until usage gets high, then tells Claude to load the skill. The first nudge is a heads-up at 75% of the 5-hour window. At 90% it tells Claude to wrap up. The hook never waits on the network: when the cache is old, it refreshes it in the background for the next check. Set `USAGE_HOOK=0` to turn it off.
+
+### Tuning:
+Everything wraps up at 90% of a window by default. To run closer to the edge, set `USAGE_WRAP_PCT=95` in the `env` block of `~/.claude/settings.json`. The hook, the watcher, and the checks all follow it. Leave some room: subagents keep using quota while Claude wraps up, and the hook only checks every 2 minutes.
+
 ### Requirements:
 `bash`, `curl`, `jq`, and a Claude Code login with a Pro or Max subscription.
 

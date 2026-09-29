@@ -159,6 +159,15 @@ out=$("$S/usage-watch.sh" --interval 0 --max-failures 2); rc=$?
 check "watch exits 3 after repeated failures and reports the error" '[ $rc = 3 ] && grep -q boom <<<"$out"' "$out"
 "$S/usage-watch.sh" --interval 2>/dev/null; rc=$?
 check "watch rejects a missing option value" '[ $rc = 64 ]'
+fake_usage ok 89
+"$S/usage-watch.sh" --interval 1 >"$T/watch-out" & wpid=$!
+sleep 2; alive=0; kill "$wpid" 2>/dev/null && alive=1; wait "$wpid" 2>/dev/null; out=$(cat "$T/watch-out")
+check "watch keeps watching at 89% by default" '[ $alive = 1 ] && grep -q "exits at 90%" <<<"$out"' "$out"
+fake_usage ok 96
+out=$(USAGE_WRAP_PCT=95 "$S/usage-watch.sh" --interval 0); rc=$?
+check "watch defaults its threshold to USAGE_WRAP_PCT" '[ $rc = 0 ] && grep -q "threshold 95%" <<<"$out"' "$out"
+USAGE_WRAP_PCT=x "$S/usage-watch.sh" 2>/dev/null; rc=$?
+check "watch rejects a non-numeric USAGE_WRAP_PCT" '[ $rc = 64 ]'
 "$S/usage-watch.sh" 85abc 2>/dev/null; rc=$?
 check "watch rejects a non-numeric threshold" '[ $rc = 64 ]'
 
@@ -180,6 +189,81 @@ out=$(WAIT_FALLBACK_SECS=1 "$S/wait-reset.sh"); rc=$?
 check "wait-reset exits 2 when usage stays unavailable" '[ $rc = 2 ] && grep -q "gave up" <<<"$out"' "$out"
 "$S/wait-reset.sh" --buffer x 2>/dev/null; rc=$?
 check "wait-reset rejects a non-numeric buffer" '[ $rc = 64 ]'
+
+# --- hooks/usage-nudge.sh ----------------------------------------------------------------
+H=$ROOT/plugins/usage-limits/hooks/usage-nudge.sh
+HJ=$ROOT/plugins/usage-limits/hooks/hooks.json
+hook() { # event [agent_id] -- runs the hook for session s1 with the given fake usage
+  local a=""; [ -n "${2:-}" ] && a=",\"agent_id\":\"$2\""
+  printf '{"hook_event_name":"%s","session_id":"s1"%s}' "$1" "$a" | "$H"
+}
+HC=$CLAUDE_CONFIG_DIR/usage-limits
+cache_age() { printf '{"fetched_at":%s}' "$(( $(date +%s) - $1 ))" >"$HC/usage-cache.json"; }
+rm -f "$HC"/hook-* "$HC"/refresh-started
+export USAGE_HOOK_INTERVAL=0   # the interval has its own tests
+cache_age 0
+
+check "hooks.json is valid and points at the hook script" \
+  'jq -e ".hooks.PostToolUse[0].hooks[0].command == \"\${CLAUDE_PLUGIN_ROOT}/hooks/usage-nudge.sh\"" "$HJ" >/dev/null && [ -x "$H" ]'
+
+fake_usage ok 40
+out=$(hook UserPromptSubmit); rc=$?
+check "hook stays silent while usage is fine" '[ $rc = 0 ] && [ -z "$out" ] && [ -f "$CLAUDE_CONFIG_DIR/usage-limits/hook-s1" ]' "$out"
+fake_usage ok 78
+out=$(hook UserPromptSubmit)
+check "hook gives a heads-up at 75%" '[ "$(jq -r .hookSpecificOutput.hookEventName <<<"$out")" = UserPromptSubmit ] && jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "window at 78%.*start its watcher"' "$out"
+out=$(hook UserPromptSubmit)
+check "hook gives the heads-up only once" '[ -z "$out" ]' "$out"
+fake_usage ok 89
+out=$(hook PostToolUse)
+check "hook does not wrap up while usage.sh says ok (89%)" '[ -z "$out" ]' "$out"
+fake_usage wrap_up 91
+out=$(USAGE_HOOK_INTERVAL=120 hook PostToolUse)
+check "hook skips checks within the interval" '[ -z "$out" ]' "$out"
+out=$(hook PostToolUse)
+check "hook says to wrap up on a wrap_up verdict after a tool call" '[ "$(jq -r .hookSpecificOutput.hookEventName <<<"$out")" = PostToolUse ] && jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "verdict=wrap_up brief" && jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "wrap-up step"' "$out"
+out=$(USAGE_HOOK_INTERVAL=0 hook PostToolUse)
+check "hook does not repeat the wrap-up nudge right away" '[ -z "$out" ]' "$out"
+out=$(USAGE_HOOK_INTERVAL=0 USAGE_HOOK_REMIND=0 hook PostToolUse)
+check "hook repeats the wrap-up nudge after USAGE_HOOK_REMIND" '[ -n "$out" ]' "$out"
+fake_usage blocked 100
+out=$(hook UserPromptSubmit)
+check "hook escalates to blocked right away" 'jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "limit is reached"' "$out"
+fake_usage ok 10; hook UserPromptSubmit >/dev/null; fake_usage ok 80
+out=$(hook UserPromptSubmit)
+check "hook gives the heads-up again after usage dropped" '[ -n "$out" ]' "$out"
+fake_usage blocked 100
+out=$(USAGE_HOOK_INTERVAL=0 hook PostToolUse agent-1)
+check "hook stays silent inside subagents" '[ -z "$out" ]' "$out"
+printf '#!/bin/bash\n[ "${1:-}" = --brief ] && { echo brief; exit 0; }\necho "{\\"verdict\\":\\"ok\\",\\"five_hour\\":{\\"used_pct\\":20},\\"worst_used_pct\\":88}"\n' >"$T/fake-usage"
+out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"s2"}' | "$H")
+check "hook gives a heads-up when the 7-day window is at 88%" 'jq -r .hookSpecificOutput.additionalContext <<<"$out" | grep -q "highest window at 88%"' "$out"
+out=$(USAGE_HOOK=0 hook UserPromptSubmit)
+check "USAGE_HOOK=0 turns the hook off" '[ -z "$out" ]' "$out"
+fake_usage ok 10 fail
+out=$(USAGE_HOOK_INTERVAL=0 hook PostToolUse); rc=$?
+check "hook stays silent when usage is unknown" '[ $rc = 0 ] && [ -z "$out" ]' "$out"
+# Cache handling: a fake that logs how it was called (USAGE_CACHE_SECS, arguments).
+rm -f "$HC"/hook-*
+fake_usage blocked 100
+{ echo '#!/bin/bash'; echo "echo \"\${USAGE_CACHE_SECS:-unset} \$*\" >>\"$T/usage-calls\""; sed 1d "$T/fake-usage"; } >"$T/fake-usage2"
+chmod +x "$T/fake-usage2"; mv "$T/fake-usage2" "$T/fake-usage"
+rm -f "$T/usage-calls"; cache_age 1000
+out=$(hook UserPromptSubmit); sleep 1
+check "hook with an old cache stays silent and refreshes in the background" '[ -z "$out" ] && [ -f "$HC/refresh-started" ] && [ "$(cat "$T/usage-calls")" = "unset " ]' "$(cat "$T/usage-calls" 2>&1)"
+rm -f "$T/usage-calls"
+out=$(hook UserPromptSubmit); sleep 1
+check "hook starts at most one refresh a minute" '[ -z "$out" ] && [ ! -f "$T/usage-calls" ]'
+rm -f "$T/usage-calls" "$HC/refresh-started"; cache_age 90
+out=$(hook UserPromptSubmit); sleep 1
+check "hook acts on a slightly old cache and refreshes it for next time" '[ -n "$out" ] && grep -q "^unset $" "$T/usage-calls" && grep -q "^960 $" "$T/usage-calls"' "$(cat "$T/usage-calls" 2>&1)"
+cache_age 0
+
+out=$(echo 'not json' | "$H"); rc=$?
+check "hook ignores malformed input" '[ $rc = 0 ] && [ -z "$out" ]' "$out"
+fake_usage blocked 100
+out=$(printf '{"hook_event_name":"UserPromptSubmit","session_id":"../../x"}' | "$H")
+check "hook keeps its state file inside the cache dir" '[ -n "$out" ] && [ -f "$CLAUDE_CONFIG_DIR/usage-limits/hook-x" ]' "$out"
 
 echo "$pass passed, $fail failed"
 [ "$fail" = 0 ]

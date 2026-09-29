@@ -12,8 +12,12 @@ allowed-tools:
 Scripts live in `${CLAUDE_SKILL_DIR}/scripts/`. Always call them by that full path, with at least one argument as shown below (the pre-approved permission rules match that form). All scripts exit 64 on a bad argument; fix the call instead of retrying it.
 
 - `usage.sh [--brief] [--no-cache]` prints usage JSON. It calls Anthropic's OAuth usage endpoint with Claude Code's own login (macOS keychain, or `~/.claude/.credentials.json` elsewhere) with a 60s cache. The token never appears in a command line or in output. The endpoint rate-limits (HTTP 429); after a failure every caller on the machine backs off (60s, doubling to 15m) and uses `codexbar` if installed (optional), else the last good result up to 15 min old, marked `"stale": true` with `age_secs` (the brief line starts with `STALE`). Fields: `verdict` (`ok` / `wrap_up` / `blocked`), `five_hour.{used_pct,seconds_until_reset,resets_local}`, `seven_day.*`, `resume_local` (reset of the window that is exhausted, if any), and `resume_cron_local` (the time to resume: reset + about 2 min). Thresholds: `USAGE_WRAP_PCT` (default 90), `USAGE_BLOCK_PCT` (default 100). Exits 2 with `{"error": ...}` when usage is unavailable. Treat a stale `ok` as roughly right, not exact: don't start a large step on it when the 5-hour window is already above 75%.
-- `usage-watch.sh [threshold] [--interval 300] [--max-failures 3]` polls usage. It exits 0 when 5-hour usage reaches `threshold` (default 85) or the verdict is no longer `ok`, and prints `seconds_until_reset` plus the usage line. It exits 3 if `usage.sh` fails several times in a row.
+- `usage-watch.sh [threshold] [--interval 300] [--max-failures 3]` polls usage. It exits 0 when 5-hour usage reaches `threshold` (default `USAGE_WRAP_PCT`, 90) or the verdict is no longer `ok`, and prints `seconds_until_reset` plus the usage line. It exits 3 if `usage.sh` fails several times in a row.
 - `wait-reset.sh [--buffer 120] [--max-sleep 3600]` sleeps until the binding window resets: the 7-day window if that one is exhausted, otherwise the 5-hour window. Then it re-checks usage and keeps waiting while the verdict is still `wrap_up`/`blocked`. It exits 0 with the fresh usage line. If `usage.sh` fails, it falls back to a 30-minute wait, says so, and exits 2 if usage is still unavailable after that. `WAIT_SECS=<n>` is a test override: it just sleeps n seconds.
+
+## The hook
+
+The plugin's hook (`hooks/usage-nudge.sh`) checks cached usage at most every 2 minutes, after tool calls and on user prompts. It adds a `usage-limits: ...` note to your context when the 5-hour window reaches 75% (heads-up: start the watcher if a long job remains), when `usage.sh` says `wrap_up` (90% by default: wrap up now), or when a limit is blocked. Treat a wrap-up note like the watcher exiting: go to step 2 below. It is silent inside subagents.
 
 ## How waiting works
 
@@ -26,7 +30,7 @@ Run the watcher and the waiter with the Bash tool's `run_in_background: true`. A
 ## Workflow for a long autonomous job
 
 1. **At the start:** run `${CLAUDE_SKILL_DIR}/scripts/usage.sh --brief` once. If the verdict is `ok`, start the watcher in the background:
-   `${CLAUDE_SKILL_DIR}/scripts/usage-watch.sh 85` (`run_in_background: true`).
+   `${CLAUDE_SKILL_DIR}/scripts/usage-watch.sh 90` (`run_in_background: true`).
    Run only one watcher per session. Remember its task ID. If one is already running, don't start another. `pgrep -fl usage-watch.sh` lists watchers on this machine, including watchers from other sessions. Before starting each large step, you can still run `usage.sh --brief` directly.
    Mention the usage line to the user only when the verdict is not `ok` or when they asked.
 

@@ -4,10 +4,11 @@
 # run_in_background: true; its exit wakes the thread so the agent can wrap up in time.
 #
 # Usage: usage-watch.sh [threshold_pct] [--interval <sec>] [--max-failures <n>]
-#   threshold_pct   5-hour used % that ends the watch (default 85)
+#   threshold_pct   5-hour used % that ends the watch (default $USAGE_WRAP_PCT, else 90)
 #   --interval      seconds between checks (default 300)
 #   --max-failures  consecutive usage.sh failures before giving up (default 3)
-# Env:   USAGE_SH     usage script to call (default: the sibling usage.sh)
+# Env:   USAGE_SH       usage script to call (default: the sibling usage.sh)
+#        USAGE_WRAP_PCT default threshold; usage.sh's wrap_up verdict uses it too
 # Exit:  0 threshold reached or verdict wrap_up/blocked
 #        3 usage.sh failed --max-failures times in a row: usage is unknown, don't fly blind
 #        64 bad argument
@@ -18,7 +19,8 @@ is_num() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
 need_num() { if [ $# -lt 2 ] || ! is_num "$2"; then bad "$1 needs a whole number"; fi; }
 
 U=${USAGE_SH:-$(dirname "$0")/usage.sh}
-TH=85; INTERVAL=300; MAXF=3
+TH=${USAGE_WRAP_PCT:-90}; INTERVAL=300; MAXF=3
+is_num "$TH" || bad "USAGE_WRAP_PCT must be a whole number"
 while [ $# -gt 0 ]; do
   case "$1" in
     --interval) need_num "$@"; INTERVAL=$2; shift 2;;
