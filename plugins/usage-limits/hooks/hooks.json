@@ -1,0 +1,27 @@
+{
+  "description": "Nudge the model to load the usage-limits skill when a usage limit gets close",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/usage-nudge.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/usage-nudge.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

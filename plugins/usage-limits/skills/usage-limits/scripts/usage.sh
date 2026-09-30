@@ -7,7 +7,8 @@
 # a failed request every caller on this machine skips it for a backoff that doubles, 60s to 15m.
 #
 # Usage: usage.sh [--brief] [--no-cache]
-# Env:   USAGE_WRAP_PCT   (default 90)  -> verdict "wrap_up" at/above this
+# Env:   USAGE_WRAP_PCT   (default 90)  -> verdict "wrap_up" when the 5-hour window is at/above this
+#        USAGE_WRAP_7D_PCT (default 95) -> same for the weekly windows (7-day and per-model)
 #        USAGE_BLOCK_PCT  (default 100) -> verdict "blocked" at/above this
 #        USAGE_CACHE_SECS (default 60)
 #        USAGE_STALE_SECS (default 900) oldest last-good result to fall back to; 0 disables
@@ -22,10 +23,12 @@ bad() { echo "usage.sh: $*" >&2; exit 64; }
 is_num() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
 
 WRAP=${USAGE_WRAP_PCT:-90}
+WRAP_7D=${USAGE_WRAP_7D_PCT:-95}
 BLOCK=${USAGE_BLOCK_PCT:-100}
 CACHE_SECS=${USAGE_CACHE_SECS:-60}
 STALE_SECS=${USAGE_STALE_SECS:-900}
 is_num "$WRAP" || bad "USAGE_WRAP_PCT must be a whole number"
+is_num "$WRAP_7D" || bad "USAGE_WRAP_7D_PCT must be a whole number"
 is_num "$BLOCK" || bad "USAGE_BLOCK_PCT must be a whole number"
 is_num "$CACHE_SECS" || bad "USAGE_CACHE_SECS must be a whole number"
 is_num "$STALE_SECS" || bad "USAGE_STALE_SECS must be a whole number"
@@ -173,21 +176,23 @@ if [ -z "$raw" ]; then
   fi
 fi
 
-# Add the verdict (driven by the worst window) and seconds_until_reset relative to now, so a
-# cached document does not report stale countdowns.
-out=$(printf '%s' "$raw" | jq -c --argjson now "$now" --argjson wrap "$WRAP" --argjson block "$BLOCK" '
+# Add the verdict (driven by the worst window, each against its own wrap-up threshold) and
+# seconds_until_reset relative to now, so a cached document does not report stale countdowns.
+out=$(printf '%s' "$raw" | jq -c --argjson now "$now" --argjson wrap "$WRAP" --argjson wrap7d "$WRAP_7D" --argjson block "$BLOCK" '
   def left: if . == null then null
     else . + { seconds_until_reset: (if .resets_epoch == null then null else .resets_epoch - $now end) } end;
   .five_hour |= left | .seven_day |= left | .seven_day_opus |= left | .seven_day_sonnet |= left
-  | ([.five_hour, .seven_day, .seven_day_opus, .seven_day_sonnet] | map(select(. != null))) as $wins
+  | ([(.five_hour | select(. != null) | . + {wrap: $wrap})]
+     + ([.seven_day, .seven_day_opus, .seven_day_sonnet] | map(select(. != null) | . + {wrap: $wrap7d}))) as $wins
   | ($wins | map(.used_pct) | max // 0) as $worst
   | ($wins | map(select(.locked_reason != null)) | length > 0) as $locked
-  | ($wins | map(select(.used_pct >= $wrap)) | map(.resets_epoch) | max) as $resume_epoch
+  | ($wins | map(select(.used_pct >= .wrap))) as $full
+  | ($full | map(.resets_epoch) | max) as $resume_epoch
   | . + {
       checked_at: ($now | todate),
       worst_used_pct: $worst,
       verdict: (if $locked or $worst >= $block then "blocked"
-                elif $worst >= $wrap then "wrap_up" else "ok" end),
+                elif ($full | length > 0) then "wrap_up" else "ok" end),
       resume_epoch: $resume_epoch,
       resume_buffer_secs: 120 }
   | .stale = (.stale // false)')
