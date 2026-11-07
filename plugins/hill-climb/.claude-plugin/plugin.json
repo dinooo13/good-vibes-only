@@ -1,0 +1,17 @@
+{
+  "name": "hill-climb",
+  "version": "0.1.0",
+  "description": "Iterate until an independent critic scores the work at or above a target out of 10, with a fixed rubric, fresh captures and ranked defects.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "critic",
+    "iteration",
+    "design",
+    "goal"
+  ],
+  "license": "MIT"
+}

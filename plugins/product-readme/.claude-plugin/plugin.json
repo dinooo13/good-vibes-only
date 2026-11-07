@@ -1,0 +1,16 @@
+{
+  "name": "product-readme",
+  "version": "0.1.0",
+  "description": "A README that sells the project: one-line value, hero, real screenshots, short install, details moved to sub pages.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "readme",
+    "documentation",
+    "marketing"
+  ],
+  "license": "MIT"
+}

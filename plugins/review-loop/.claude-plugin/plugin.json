@@ -1,0 +1,16 @@
+{
+  "name": "review-loop",
+  "version": "0.1.0",
+  "description": "A fresh reviewer from another model, or a three-provider council, reviews your change; you fix it and repeat until it approves.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "code-review",
+    "council",
+    "multi-model"
+  ],
+  "license": "MIT"
+}

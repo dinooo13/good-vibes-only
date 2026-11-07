@@ -11,6 +11,60 @@
       "source": "./plugins/usage-limits",
       "description": "Watch Claude Code subscription usage during long jobs, stop cleanly near a limit, and resume the same thread after the window resets.",
       "category": "productivity"
+    },
+    {
+      "name": "ship-it",
+      "source": "./plugins/ship-it",
+      "description": "Land a change end to end: verify, PR, babysit CI and reviews, rebase, merge, pull main, install or deploy, check it live, clean up.",
+      "category": "development"
+    },
+    {
+      "name": "review-loop",
+      "source": "./plugins/review-loop",
+      "description": "A fresh reviewer from another model, or a three-provider council, reviews your change; you fix it and repeat until it approves.",
+      "category": "development"
+    },
+    {
+      "name": "fan-out",
+      "source": "./plugins/fan-out",
+      "description": "Take several issues from plan to merged PRs in parallel, with planners, an approval gate, implementers in worktrees, reviews and ordered merges.",
+      "category": "development"
+    },
+    {
+      "name": "handoff",
+      "source": "./plugins/handoff",
+      "description": "Write a self-contained brief so a new session, T3 thread or /goal run can carry on without this thread's history.",
+      "category": "productivity"
+    },
+    {
+      "name": "hill-climb",
+      "source": "./plugins/hill-climb",
+      "description": "Iterate until an independent critic scores the work at or above a target out of 10, with a fixed rubric, fresh captures and ranked defects.",
+      "category": "development"
+    },
+    {
+      "name": "product-readme",
+      "source": "./plugins/product-readme",
+      "description": "A README that sells the project: one-line value, hero, real screenshots, short install, details moved to sub pages.",
+      "category": "documentation"
+    },
+    {
+      "name": "web-quality",
+      "source": "./plugins/web-quality",
+      "description": "Lighthouse, Core Web Vitals, SEO and GEO, and a visual pass on phone and desktop, measured before and after.",
+      "category": "development"
+    },
+    {
+      "name": "project-digest",
+      "source": "./plugins/project-digest",
+      "description": "A short, read-only digest of your GitHub projects: who is waiting on you, what is broken, what is ready to merge.",
+      "category": "productivity"
+    },
+    {
+      "name": "tidy-repos",
+      "source": "./plugins/tidy-repos",
+      "description": "Delete merged branches and clean worktrees across your repos, and list stale work instead of touching it.",
+      "category": "productivity"
     }
   ]
 }

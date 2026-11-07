@@ -1,0 +1,16 @@
+{
+  "name": "fan-out",
+  "version": "0.1.0",
+  "description": "Take several issues from plan to merged PRs in parallel, with planners, an approval gate, implementers in worktrees, reviews and ordered merges.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "orchestration",
+    "subagents",
+    "issues"
+  ],
+  "license": "MIT"
+}

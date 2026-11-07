@@ -1,0 +1,17 @@
+{
+  "name": "tidy-repos",
+  "version": "0.1.0",
+  "description": "Delete merged branches and clean worktrees across your repos, and list stale work instead of touching it.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "git",
+    "branches",
+    "worktrees",
+    "cleanup"
+  ],
+  "license": "MIT"
+}

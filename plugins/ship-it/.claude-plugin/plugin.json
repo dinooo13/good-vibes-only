@@ -1,0 +1,17 @@
+{
+  "name": "ship-it",
+  "version": "0.1.0",
+  "description": "Land a change end to end: verify, PR, babysit CI and reviews, rebase, merge, pull main, install or deploy, check it live, clean up.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "pull-request",
+    "ci",
+    "merge",
+    "deploy"
+  ],
+  "license": "MIT"
+}

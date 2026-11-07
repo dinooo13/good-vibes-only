@@ -1,0 +1,17 @@
+{
+  "name": "web-quality",
+  "version": "0.1.0",
+  "description": "Lighthouse, Core Web Vitals, SEO and GEO, and a visual pass on phone and desktop, measured before and after.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "keywords": [
+    "lighthouse",
+    "seo",
+    "geo",
+    "accessibility"
+  ],
+  "license": "MIT"
+}
