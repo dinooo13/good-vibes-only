@@ -18,7 +18,7 @@ The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code).
 | --- | --- | --- |
 | [ship-it](#ship-it) | "ship it" | Verify, PR, babysit, rebase, merge, pull main, install or deploy, check live, clean up |
 | [review-loop](#review-loop) | "review loop", "council" | A fresh Opus xhigh reviewer reviews; you fix; repeat until it approves |
-| [fan-out](#fan-out) | "fan out issues 36–38" | Planners, your approval, then one T3 thread per issue that implements, reviews and ships |
+| [fan-out](#fan-out) | "fan out issues 36–38" | One T3 thread per issue: plan, your go, implement, verify, review, ship |
 | [handoff](#handoff) | "write a handoff" | A brief that lets a new thread carry on without your history |
 | [hill-climb](#hill-climb) | "until the critic gives a 9" | Critic rounds with a fixed rubric until the score reaches the target |
 | [product-readme](#product-readme) | "make the README sell it" | Hero, real screenshots, short install, details moved out |
@@ -67,7 +67,7 @@ A second opinion, as many times as it takes (three rounds by default). The revie
 
 ### fan-out
 
-Hand it a handful of issues. It writes the missing "Done when" criteria, groups issues that touch the same files, and plans each one with a strong model. Then it waits for your go. In T3 Code every issue gets its own thread and worktree. Each thread implements the issue, puts its PR through review-loop and ship-it, takes turns on shared resources like benchmarks, and starts only after the PRs it depends on have merged. With `--plan-only` it just posts plans on the issues, which makes a nice overnight job.
+Hand it a handful of issues. It writes the missing "Done when" criteria, works out which issues depend on each other, and starts one T3 thread per issue in its own worktree. Each thread runs the whole flow: a Fable planner, a short summary for you, an Opus implementer, then verify, review-loop and ship-it on its own PR. You approve all the plans in one place, the coordinator. Threads take turns on shared resources like benchmarks, and a dependent issue starts only after the issue it needs has merged. With `--plan-only` it just posts plans on the issues, which makes a nice overnight job.
 
 ### handoff
 

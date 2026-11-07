@@ -1,15 +1,16 @@
 ---
 name: fan-out
-description: Take several GitHub issues from plan to merged PRs in parallel. One planner per issue and a short summary for the user's approval. Then one T3 thread per issue, in its own worktree, that implements the issue, reviews it and ships its PR, with dependencies merged first. Use when the user names issues to implement ("look at issues 36, 37 and 38", "implement the open issues", "spawn a planner and an implementer for each") or says "fan out". With --plan-only it only posts plans on the issues, for example overnight.
+description: Take several GitHub issues from plan to merged PRs in parallel. One T3 thread per issue, in its own worktree, runs the whole flow: a planner, a short summary for the user's approval, an implementer, verify, review-loop and ship-it. The coordinator starts the threads, collects the approvals and merges dependencies first. Use when the user names issues to implement ("look at issues 36, 37 and 38", "implement the open issues", "spawn a planner and an implementer for each") or says "fan out". With --plan-only it only posts plans on the issues, for example overnight.
 ---
 
 # Fan out
 
-You coordinate; children do the work. Collect short reports, not file dumps.
-Call `orchestrator_capabilities` and take the newest model of each family,
-unless the user names others:
+You coordinate; one thread per issue does the work. Collect short messages,
+not file dumps. Call `orchestrator_capabilities` and take the newest model of
+each family, unless the user names others:
+- issue threads and implementers: Opus at `high`, or Sonnet for fully
+  specified, mechanical work
 - planners: Fable at `xhigh`
-- implementers: Opus at `high`, or Sonnet for fully specified, mechanical work
 - reviewers: as `review-loop` picks them
 
 ## 1. Gather
@@ -28,70 +29,78 @@ unless the user names others:
 Keep one issue per thread. Group issues into one thread only when the user
 asks.
 
-## 2. Plan and approve
+## 2. Start one thread per issue
 
-Start one planner per issue with `delegate_task` (`role: "design"`,
-`mode: "async"`). Write "read only" into the task text. Ask for the approach,
-the files, the steps, the tests, how to verify, the risks and the open
-questions.
-
-Show the user 5 to 10 sentences per plan, with the open questions and the
-order. Wait for their go unless they said to skip it or passed `--auto`. Pass
-their decisions on as "decided, do not reopen".
-
-## 3. One thread per issue
-
-In T3, start one thread per issue with `t3_thread_launch`:
+In T3, start each thread with `t3_thread_launch`:
 - `workspaceStrategy: {type: "worktree", baseRef: <current default branch>, branch}`
+- `modelSelection` for the issue-thread model
 - `delegatedFrom` set to this thread
-- `modelSelection` for the implementer model above
 - a brief written with the `handoff` skill
 
 Outside T3, use one worktree subagent per issue instead.
 
 Each brief holds:
-- the approved plan, and the user's decisions as "decided, do not reopen"
-- "Done when"
-- the instruction to prove the work with `verify`, then run `review-loop` and
-  `ship-it` on its own PR. The thread owns and watches that PR. Tell it to
-  merge only if the user allowed merges.
-- your thread id, and a request to `t3_thread_send` you the PR URL, the SHA
-  and the state when the PR is ready and again when it has merged. A launched
-  thread doesn't report back on its own.
-- when several PRs land, an instruction to skip ship-it's install, deploy and
-  live check; you do those once at the end
+- the issue, "Done when", and the binding docs
+- the user's decisions so far, as "decided, do not reopen"
+- the lock rules below, with the exact paths
+- whether merges are allowed, and whether `--auto` applies
+- your thread id
+- the issue flow in section 3
 
 **Dependencies.** Launch a dependent issue's thread only after the thread it
-depends on reports its merge. Its `baseRef` is the updated default branch.
+depends on reports its merge. Its `baseRef` is then the updated default
+branch.
 
-**Shared resources.** Use one lock for each resource, and put these rules in
-every brief, with the exact lock path filled in (such as
-`/tmp/pladder-gpu.lock`):
-- Take it with `mkdir <lock path>`, with an `owner` file inside naming the
-  thread. The `mkdir` decides who goes.
-- If it's taken, wait with one background
-  `until mkdir <lock path> 2>/dev/null; do sleep 30; done`.
-- Release it with `rm -r`, and never break someone else's lock.
-- When a thread is stopped or fails, you remove the locks its `owner` file
-  names.
-- Once all threads run, send each the others' thread ids. They may tell each
-  other about long holds.
+## 3. The issue flow (inside each issue thread)
 
-## 4. Track and finish
+1. **Plan.** Start a Fable `xhigh` planner with `delegate_task`
+   (`role: "design"`, "read only" in the task text). Ask it for the approach,
+   the files, the steps, the tests, how to verify, the risks and the open
+   questions.
+2. **Approve.** Send the coordinator a 5 to 10 sentence summary and the open
+   questions with `t3_thread_send`, then end your turn and wait. Go ahead
+   when the coordinator passes on the go, or when the user answers in this
+   thread. With `--auto`, skip the wait.
+3. **Implement.** Start an Opus `high` implementer with `delegate_task`
+   (`role: "implementation"`). It works in this thread's worktree. Give it the
+   approved plan and the decisions. For a big plan, use several implementers
+   one after the other.
+4. **Land.** Prove the work with `verify`, then run `review-loop` and
+   `ship-it` on your own PR. This thread owns and watches the PR. Merge only if
+   merges are allowed. When the coordinator says several PRs land, skip
+   ship-it's install, deploy and live check.
+5. **Report.** Send the coordinator the PR URL, the SHA and the state when the
+   PR is ready, and again when it has merged.
 
-Keep a table (issue, thread link, branch, PR, state) and answer status
-questions from it. Follow the threads' messages instead of polling them.
-Rebasing is each thread's job; ship-it rebases when a PR falls behind. After
-the last merge, pull main once and run ship-it's install or deploy and its
-live check yourself.
+## 4. Coordinate
 
-At the end, comment on partly done issues with `pr-comments` and list the
-follow-ups. File them only if the user asks. Settle the threads that finished,
-if the user wants that.
+- **Approvals.** As plan summaries arrive, show the user all of them together,
+  with the open questions and the order. On their go, for all issues or for
+  each one, pass the go and their decisions to each thread with
+  `t3_thread_send`.
+- **Shared resources.** Use one lock per resource, with the exact path filled
+  in (such as `/tmp/pladder-gpu.lock`):
+  - Take it with `mkdir <lock path>`, with an `owner` file inside naming the
+    thread. The `mkdir` decides who goes.
+  - If it's taken, wait with one background
+    `until mkdir <lock path> 2>/dev/null; do sleep 30; done`.
+  - Release it with `rm -r`, and never break someone else's lock.
+  - When a thread is stopped or fails, you remove the locks its `owner` file
+    names.
+  - Once all threads run, send each the others' thread ids. They may tell each
+    other about long holds.
+- **Tracking.** Keep a table (issue, thread link, plan, PR, state) and answer
+  status questions from it. Follow the threads' messages instead of polling
+  them.
+- **Finish.** After the last merge, pull main once and run ship-it's install
+  or deploy and its live check yourself. Comment on partly done issues with
+  `pr-comments`, and list the follow-ups; file them only if the user asks.
+  Settle the finished threads, if the user wants that.
 
 ## Plan-only
 
-For an overnight run:
+For an overnight run, without threads:
+- Start one Fable `xhigh` planner per issue as in step 3.1.
 - Plan the open issues that have no plan yet. An issue counts as planned when
   it has a comment starting `## Plan (fan-out)` that is newer than both the
   body's last edit (`lastEditedAt` through `gh api graphql`) and its newest
