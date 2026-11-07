@@ -1,6 +1,6 @@
 {
   "name": "good-vibes-only",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent workflow skills for T3 Code: ship-it, review-loop, fan-out, handoff, hill-climb, verify, pr-comments, product-readme, web-quality, project-digest and tidy-repos.",
   "author": {
     "name": "Fabian Meyer",

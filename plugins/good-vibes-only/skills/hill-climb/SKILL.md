@@ -67,8 +67,8 @@ already said go.
   critic.
 - **A plateau:** two rounds in a row add less than 0.2. Report what blocks
   progress.
-- **The budget or a pause point is reached, or usage is near its limit.** Load
-  `usage-limits` if it's installed; `scores.md` is the handoff.
+- **The budget or a pause point is reached, or usage is near its limit.**
+  `scores.md` is the handoff.
 
 If the user changes the target mid-run, follow it.
 
