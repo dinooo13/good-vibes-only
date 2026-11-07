@@ -13,8 +13,9 @@ reported, never touched.
 - The repo the user names. Otherwise every git repository directly under
   `~/Developer`, and every worktree under `~/.t3/worktrees`.
 - **Interactive run:** first show the plan (what will be deleted, per repo),
-  then act on the user's go. Skip the confirmation if they already said go,
-  for example "delete all but main".
+  then act on the user's go. Skip the confirmation if they already said go
+  ("yes, go ahead"). Even then, unmerged branches are only listed, never
+  deleted.
 - **Scheduled run:** nobody can answer, so act only on the safe set below and
   report the rest.
 
@@ -23,12 +24,13 @@ reported, never touched.
 - Touch the default branch, release branches, or branches with an open PR.
 - Delete a branch or worktree with uncommitted changes, untracked files that
   matter, or commits that exist nowhere else.
-- Remove a worktree that a T3 thread is still using. To check, call
-  `t3_thread_list` with `allProjects: true` and the statuses
-  `running`, `waiting`, `starting`, `queued` and `preparing`. Leave any
-  worktree whose path or branch belongs to one of those threads.
-- Use `--force` on anything, or push anywhere except to delete a merged
-  branch.
+- Remove a worktree that a T3 thread may still use. Call `t3_thread_list`
+  with `allProjects: true` and `settled: false`. For each thread it returns,
+  `t3_worktree_list` with that `threadId` gives its checkout path and branch.
+  Leave every worktree that belongs to an unsettled thread, including idle
+  ones: the user may come back to them.
+- Use `--force`, or `git branch -D` outside the rule in step 5. Push only to
+  delete a merged branch.
 - Delete branches in repos the user does not own.
 
 ## Steps per repo
@@ -39,11 +41,14 @@ reported, never touched.
    `gh pr list --state merged --limit 200 --json headRefName,mergedAt,headRefOid`.
    A branch counts as merged when:
    - a merged PR's head is that branch, and
-   - the branch tip equals that PR's head commit, or is an ancestor of the
+   - the branch tip equals that PR's `headRefOid`, or is an ancestor of the
      default branch.
 
-   A branch with commits after its PR merged is not done.
-3. **Remote branches:** delete the merged ones that still exist
+   Check the local branch and `origin/<branch>` separately. A copy with
+   commits beyond the PR's head (pushed later, perhaps from another machine)
+   is not done.
+3. **Remote branches:** delete the merged ones that still exist, after
+   checking `origin/<branch>` against the rule above
    (`git push origin --delete <branch>`). Skip branches the repo deletes
    automatically.
 4. **Worktrees** (`git worktree list --porcelain`): remove one with
@@ -55,8 +60,11 @@ reported, never touched.
    - no active T3 thread uses it
 
    Then run `git worktree prune`.
-5. **Local branches:** delete the merged ones that no worktree has checked out
-   (`git branch -d`, never `-D`).
+5. **Local branches:** delete the merged ones that no worktree has checked
+   out, with `git branch -d`. After a squash or rebase merge, `-d` refuses.
+   Then `git branch -D` is allowed, but only when the local tip equals the
+   merged PR's `headRefOid` or is an ancestor of the default branch. Never use
+   `-D` in any other case.
 6. **Report stale work, don't delete it:** unmerged branches and worktrees with
    no commit in the last 30 days. Give the last commit date, whether there is
    an open or closed PR, and whether there are uncommitted changes.

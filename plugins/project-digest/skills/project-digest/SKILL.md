@@ -14,13 +14,15 @@ Read only. Never comment, label, merge, rerun or close anything.
 
 - **Repos:** the ones listed in the prompt. Otherwise, the user's own repos
   pushed in the last 30 days:
-  `gh repo list --limit 50 --json nameWithOwner,pushedAt,isArchived`.
+  `gh repo list --limit 50 --json nameWithOwner,pushedAt,isArchived,isFork`.
   Skip archived repos and forks unless they are listed.
 - **The user:** `gh api user --jq .login`.
 - **Since when:** the time of the last digest, from
   `~/.local/state/good-vibes-only/digest-last-run` (an ISO timestamp).
   Without that file, use 24 hours, or 72 hours on a Monday. Write the new
-  timestamp at the end of a successful run.
+  timestamp at the end of a successful run, but only when the run covered
+  the full default scope or the scheduled repo list. A one-off digest of a
+  single repo must not move it.
 
 ## 2. Collect
 

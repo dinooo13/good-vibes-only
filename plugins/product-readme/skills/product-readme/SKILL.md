@@ -59,9 +59,11 @@ failed rework.
 
 ## 4. Repository metadata
 
-Set the description, topics and homepage with
-`gh repo edit --description … --add-topic … --homepage …`. Write the
-description for search: what it is, for whom, and the key property.
+Draft the description, topics and homepage. Write the description for
+search: what it is, for whom, and the key property. Show them together with
+the README draft. Apply them only after the user's OK, or when the PR lands,
+with `gh repo edit --description … --add-topic … --homepage …`. That command
+changes the public repo at once.
 
 ## 5. Check and land
 

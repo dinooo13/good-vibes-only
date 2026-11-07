@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Review a change with a fresh reviewer from another model, fix what it finds, and repeat until it approves. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", "review until it's clean", or asks another model to review a change or PR before it merges.
+description: Review a change with a fresh Opus xhigh reviewer in its own thread, fix what it finds, and repeat until it approves. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", "review until it's clean", or asks another model to review a change or PR before it merges.
 ---
 
 # Review loop
@@ -11,8 +11,7 @@ change at the size the goal needs, not a change that grows with every round.
 
 ## Modes
 
-- **Single (the default):** one reviewer from another model family than the
-  author's.
+- **Single (the default):** one reviewer, the newest Claude Opus at `xhigh`.
 - **Council:** one flagship model from each of three providers. Use it when
   the user says "council", or for changes going to someone else's repo.
 
@@ -43,11 +42,8 @@ change at the size the goal needs, not a change that grows with every round.
 In T3, call `orchestrator_capabilities` once. Resolve models by family and
 take the newest version. Never hardcode model IDs.
 
-**Single mode:**
-- If the change was written by Claude Opus, use the newest Claude Fable at
-  `xhigh`.
-- Otherwise use the newest Claude Opus at `xhigh`.
-- A reviewer the user names always wins.
+**Single mode:** the newest Claude Opus at `xhigh`. A reviewer the user names
+always wins.
 
 **Council mode:** one model per provider, at high or stronger reasoning:
 - the newest Claude Opus (`claudeAgent`)
@@ -145,7 +141,7 @@ Rounds: 2
 
 | Reviewer | Round 1 | Round 2 |
 | --- | --- | --- |
-| Claude Fable 5.1 (xhigh) | 7/10 | 9/10 |
+| Claude Opus 5.5 (xhigh) | 7/10 | 9/10 |
 ```
 
 If a reviewer gave no score, write `no score`. Never invent one.

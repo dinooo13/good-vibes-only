@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Write a self-contained brief so a new session, a new T3 thread, a delegated child or a /goal run can continue the work without this thread's history. Use when the user says "write a handoff", "hand this over", "start a new thread for this", "continue in another session", "do the next round in the same manner", and before launching any thread or child that must work alone.
+description: Write a self-contained brief so a new session, a new T3 thread, a delegated child or a /goal run can continue the work without this thread's history. Use when the user says "write a handoff", "hand this over", "start a new thread for this", "continue in another session", "do the next round in the same manner", and before launching a T3 thread or a long-running implementer that must work alone.
 ---
 
 # Handoff
@@ -29,10 +29,6 @@ for a new thread, otherwise to **chat**.
 
 ```markdown
 <One sentence: the task.> <Where it ends: report only | PR opened, not merged | merged and installed.>
-
-## First action
-<Only when the user wants the parent settled:> Settle the thread that launched you:
-call `t3_thread_organize` with {"action":"settle","threadId":"<parent thread id>"}. Then do the task.
 
 ## Why
 <The user's goal and motivation, in a few lines, close to their own words.>
@@ -91,6 +87,11 @@ call `t3_thread_organize` with {"action":"settle","threadId":"<parent thread id>
   with the options from `orchestrator_capabilities`.
 - Set `delegatedFrom` to this thread, so the new thread shows where it came
   from.
-- After the launch, give the user the thread's `link`. Do not poll it. If the
-  user wants this thread settled once the new one is running, settle it with
-  `t3_thread_organize`.
+- After the launch, give the user the thread's `link`. Do not poll it.
+- If the user wants this thread settled once the new one runs, settle it
+  yourself with `t3_thread_organize` and `{"action":"settle"}`. It takes
+  effect at the end of your turn. Don't ask the new thread to do it; that
+  races your final message.
+- If this thread must hear back (for example when the new thread's PR
+  merges), put your thread id in the brief's "Coordinate" section and ask for
+  a `t3_thread_send` message with the result.

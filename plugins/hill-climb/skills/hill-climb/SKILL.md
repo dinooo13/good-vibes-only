@@ -19,6 +19,11 @@ Write these into `hill-climb/` in the repo, or in the scratchpad for a
 throwaway project. Show them to the user in one message, unless they already
 said go.
 
+Commit the rubric, the capture plan, `scores.md` and the critiques: they
+document the run. Keep captures and reference media out of git. Add
+`hill-climb/captures/` and `hill-climb/reference/` to `.gitignore`, or keep
+them in the scratchpad. That way they never land in a PR.
+
 1. **Goal and target.** For example "the critic's headline score is at least
    9.0". Also the round budget (default 8) and any pause points the user wants
    ("pause after round 3 and report").
@@ -42,14 +47,18 @@ said go.
    - empty, loading and error states
    - light and dark
    - real interaction (moving, typing), not only stills
-5. **With /goal:** the condition is "the latest critique in
-   `hill-climb/scores.md` has a headline of at least <target>". Keep the goal
-   prompt under 4,000 characters and point to these files.
+5. **With /goal:** the condition is "the last two critiques in
+   `hill-climb/scores.md`, from two different critics, both have a headline of
+   at least <target>". That includes the confirmation round from step 4. Keep
+   the goal prompt under 4,000 characters and point to these files.
 
 ## 2. Critic round
 
 - Start a **fresh** critic for every round with `delegate_task`:
-  - `role: "review"`, read only
+  - `role: "review"`
+  - "Never edit source files, commit or push. Write only under
+    `hill-climb/critiques/` and `hill-climb/captures/`" written into the task
+    text, since `delegate_task` has no read-only flag
   - a strong model: the newest Claude Fable or Opus at `xhigh` (resolve it
     with `orchestrator_capabilities`), or another provider for variety
   - never reuse a critic
@@ -61,7 +70,8 @@ said go.
 - **It produces its own captures**, following the capture plan: the T3 preview
   browser for the web, the T3 device tools for simulators, a build plus
   screenshots for desktop apps.
-- **It writes `hill-climb/critique-<n>.md`** with:
+- **It writes `hill-climb/critiques/critique-<n>.md`**, with its captures in
+  `hill-climb/captures/<n>/`. The critique contains:
   - a table of every axis: last round, now, change
   - the headline score and a one-paragraph verdict
   - each fix claimed since the last round: fixed, partly fixed or not fixed,
@@ -85,8 +95,10 @@ said go.
   The next critic judges that commit.
 - **Run measurements one at a time** when they share hardware: GPU frame
   times, Neural Engine benchmarks, a simulator, a device. Parallel browsers on
-  one GPU make fps numbers worthless. Use the lock protocol from the `fan-out`
-  skill.
+  one GPU make fps numbers worthless. Tell every implementer to take a lock
+  first: `mkdir /tmp/<repo>-<resource>.lock`. If that fails, wait with one
+  background command, `until mkdir … 2>/dev/null; do sleep 30; done`. Release
+  the lock with `rm -r`.
 - Fix the real defect, not the metric.
 - If the headline drops, fix or revert the regression before adding anything
   new.

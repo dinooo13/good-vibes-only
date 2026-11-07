@@ -12,6 +12,14 @@ installed on this machine, deployed to production, or both.
 Work in T3 Code with T3's tools. The steps name them. Outside T3, use the
 harness's equivalent and say which one you used.
 
+**Start at the step that fits the request.** "Install the latest main" or
+"make sure prod deployed clean", with nothing left to PR, starts at step 5.
+"Babysit the PR" starts at step 3.
+
+**Who may merge.** "Ship it", "merge", "merge when green" and "babysit and
+merge" include permission to merge. "Babysit the PR" alone, "PR" and "put up
+a PR" stop at the merge gate with the PR ready.
+
 ## 0. Read the project's ship rules
 
 Look in `CLAUDE.md` and `AGENTS.md` for a `## Ship` section. It says how to
@@ -72,8 +80,10 @@ section in this shape. Do not commit it unasked.
 - On each wake, act only on things newer than your latest push.
   - Check every bot finding against the source. Fix real findings and get
     proof for each fix before you push.
-  - Dismiss false positives with a short written reason, then resolve the
-    thread.
+  - Dismiss false positives with a short written reply giving the reason.
+    Resolve the review thread if the repo expects it: there is no `gh`
+    subcommand for that, so use `gh api graphql` with the
+    `resolveReviewThread` mutation.
   - CodeRabbit is advisory. Never wait for it or hold a merge for it.
   - A flaky infrastructure failure gets one rerun (`gh run rerun <id> --failed`).
     Fix real failures.
@@ -90,8 +100,10 @@ All of these must be true on the latest head:
 
 - Your proof covers every change in the diff.
 - Required checks are green.
-- Review bots have finished, and every finding is fixed or dismissed with a
-  reason.
+- Review bots that gate the repo (required checks, or bots like Greptile or
+  Macroscope that the repo waits for) have reviewed the latest head. Every
+  finding, from any bot, is fixed or dismissed with a reason. CodeRabbit never
+  gates.
 - No human review still requests changes.
 - The branch is up to date with the base. GitHub reports it as mergeable, not
   `BEHIND` or `DIRTY`. No base commit that landed after the last green run
@@ -101,9 +113,9 @@ If the branch is behind, rebase it, push with `--force-with-lease` (only for
 this PR's own branch), and wait for green again. Never use `--admin` or any
 other bypass of branch protection.
 
-"Ship it" is permission to merge. If the user said they will review or merge
-themselves, stop here. Report that the PR is ready and call
-`unwatch_pull_request`.
+Merge only with permission (see "Who may merge" above). Without it, or if the
+user said they will review or merge themselves, stop here. Report that the PR
+is ready and call `unwatch_pull_request`.
 
 Right before merging, run `git fetch` and check the PR again. Merge with the
 method the repo allows; many of the user's repos are rebase only. For stacked
@@ -122,21 +134,27 @@ merge.
      the user asked for that.
    - **Physical devices:** use the project's install command, then check that
      the app launches.
-   - **Deploy pipelines:** find the deploy run (`gh run list --branch <default>`)
-     and wait for it with one background command:
-     `gh run watch <id> --exit-status`, with `run_in_background`, followed by
-     `t3_background_wait`.
+   - **Deploy pipelines:** find the run for the merge commit itself:
+     `gh run list --commit <merge sha> --json databaseId,status,name,workflowName`.
+     A run on `--branch <default>` may be the previous deploy. If the list is
+     still empty, wait once for about 30 seconds and look again. Then wait for
+     the run with one background command, `gh run watch <id> --exit-status`,
+     using `run_in_background`, followed by `t3_background_wait`.
 3. **Check it live.** Open the production URL in the T3 preview browser, or
    curl it. Look at the thing that changed, not only at a 200 status. Close
    preview tabs you opened.
 
 ## 6. Clean up
 
-- Delete the merged branch on the remote (if the repo does not do that
-  automatically) and locally.
-- Do not remove the worktree this thread runs in. The `tidy-repos` skill
-  removes merged worktrees later. You may remove other worktrees this thread
-  created, if they are clean and their branch has merged.
+- Delete the merged branch on the remote, if the repo does not do that
+  automatically.
+- Delete the local branch only if no worktree has it checked out. In T3, this
+  thread's own worktree usually does, so leave that branch and the worktree
+  for the `tidy-repos` skill. After a squash or rebase merge, `git branch -d`
+  refuses; `-D` is fine once GitHub shows the PR merged and the local tip
+  equals the PR's head commit.
+- You may remove other worktrees this thread created, if they are clean and
+  their branch has merged.
 - Never delete branches or worktrees you did not create unless the user asks.
 - T3 settles a thread when its linked PR merges. If the thread is still
   active once the work is done and the user asked for it to be settled, call

@@ -17,7 +17,7 @@ The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code).
 | Skill | Say | What happens |
 | --- | --- | --- |
 | [ship-it](#ship-it) | "ship it" | Verify, PR, babysit, rebase, merge, pull main, install or deploy, check live, clean up |
-| [review-loop](#review-loop) | "review loop", "council" | A fresh reviewer from another model reviews; you fix; repeat until it approves |
+| [review-loop](#review-loop) | "review loop", "council" | A fresh Opus xhigh reviewer reviews; you fix; repeat until it approves |
 | [fan-out](#fan-out) | "fan out issues 36–38" | Planners, your approval, implementers in worktrees, reviews, merges in order |
 | [handoff](#handoff) | "write a handoff" | A brief that lets a new thread carry on without your history |
 | [hill-climb](#hill-climb) | "until the critic gives a 9" | Critic rounds with a fixed rubric until the score reaches the target |
@@ -61,7 +61,7 @@ The wait belongs to the Claude Code session. If you close the cli or the app, no
 
 ### review-loop
 
-A second opinion from a different model, as many times as it takes (three rounds by default). The reviewer runs in its own thread with no history, gives a score out of 10, and labels each finding blocker, should or nit. You fix what's real, push back with evidence, and decline scope creep. Say "council" to get three providers at once. The scores per round end up in the PR description.
+A second opinion, as many times as it takes (three rounds by default). The reviewer, Opus at xhigh unless you name another, runs in its own thread with no history, gives a score out of 10, and labels each finding blocker, should or nit. You fix what's real, push back with evidence, and decline scope creep. Say "council" to get three providers at once. The scores per round end up in the PR description.
 
 ### fan-out
 

@@ -22,8 +22,8 @@ after.
 - Run the Lighthouse CLI against the URL, for mobile (the default) and desktop:
   - `npx lighthouse <url> --output=json --output-path=<file> --quiet --chrome-flags="--headless=new"`
   - add `--preset=desktop` for the desktop run
-- Run each configuration three times and take the median. At most ten runs
-  in total; the numbers are noisy.
+- Run each page and configuration three times and take the median; single
+  runs are noisy. After a fix, re-run only the pages it affects.
 - Test the key pages, not only the home page: a detail page, a long content
   page, and legal pages.
 - Look at the failing audits, not only the scores. The usual suspects:

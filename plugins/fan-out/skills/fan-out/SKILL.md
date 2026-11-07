@@ -33,7 +33,8 @@ Use `xhigh` for implementers only on small, hard pieces.
 2. Read `CLAUDE.md`, `AGENTS.md` and the docs they name as binding.
 3. **Check "Done when".** Each issue needs acceptance criteria that can be
    tested. If they are missing or vague, draft them. Add them to the issue
-   faithfully once the user approves, or straight away in auto mode.
+   faithfully once the user approves, or straight away in auto mode. In
+   plan-only mode, put them into the plan comment and leave the issue alone.
 4. **Find links between issues.**
    - Dependencies: B needs A merged.
    - Shared files: two issues that edit the same files become one package, or
@@ -47,8 +48,10 @@ Use `xhigh` for implementers only on small, hard pieces.
 ## 1. Plan
 
 Start one planner per package with `delegate_task`:
-- `role: "design"`, `mode: "async"`, read only
+- `role: "design"`, `mode: "async"`
 - the newest Fable at `xhigh`
+- "Read only: do not edit, commit or push" written into the task text, since
+  `delegate_task` has no read-only flag
 
 The brief holds:
 - the issue text, or tell the planner to run `gh issue view`
@@ -75,13 +78,24 @@ pass them on as "decided, do not reopen".
 Use one worktree per package. Pick the vehicle by size:
 
 - **Short, self-contained work:** use `delegate_task` with
-  `role: "implementation"` and `isolation: "worktree"`. The child commits on
-  its branch and reports back. You open the PR.
+  `role: "implementation"` and `isolation: "worktree"`. That worktree starts
+  from your own checkout's commit, not from origin. So first bring your
+  checkout to the current default branch: `git pull --ff-only` in the root
+  checkout, or rebase your worktree. Tell the child to commit on a named
+  branch and push it (`git push -u origin <branch>`). Then you open the PR
+  with `gh pr create --head <branch>`.
 - **Long work, or work that will need the user's input or its own PR
   babysitting:** start a T3 thread with `t3_thread_launch`, using
   `workspaceStrategy: {type: "worktree", baseRef: "<base>", branch: "<name>"}`.
   Write the brief with the `handoff` skill. Tell the thread to open its PR and
   run `ship-it` up to "ready", or to merge if the user wants that.
+  - A launched thread does not report back to you on its own. In the brief,
+    give it your thread id and tell it to call `t3_thread_send` to you when
+    its PR is ready and again when it has merged, with the PR URL, the head or
+    merge SHA, and the state. Then end your turn; that message wakes you.
+  - When several packages merge, tell each thread to skip ship-it's
+    install/deploy and live-check steps (5.2 and 5.3). You do them once at the
+    end.
 
 Every brief includes:
 - the approved plan
@@ -92,16 +106,21 @@ Every brief includes:
 - the coordination rules below
 
 **Dependencies.** Do not start a package before the packages it depends on
-have merged. Watch the earlier PR (`watch_pull_request`, in the thread that
-owns it). After it merges, start the next package from the new main.
+have merged. Only the thread that owns a PR watches it. You learn about the
+merge from that thread's message, or, for PRs you own, from your own
+`watch_pull_request`. After the merge, update your checkout to the new main
+and start the next package from there.
 
-**Shared resources.** Give every child the same lock protocol and the names of
-the other threads:
+**Shared resources.** Give every child the same lock protocol:
 1. Take the lock with `mkdir /tmp/<repo>-<resource>.lock`, and write your
-   name and the time into an `owner` file inside it.
-2. Tell the other threads with `t3_thread_send` when you take the lock and
-   when you release it.
-3. Never break someone else's lock.
+   name and the time into an `owner` file inside it. The `mkdir` is the gate.
+2. If it fails, the resource is busy. Wait for it with one background
+   command: `until mkdir /tmp/<repo>-<resource>.lock 2>/dev/null; do sleep 30; done`
+   with `run_in_background`, then `t3_background_wait`.
+3. Release it with `rm -r` when done. Never break someone else's lock.
+4. Once all children are running, send each the others' thread ids. They may
+   tell each other when they take or release a lock, as a courtesy for long
+   holds.
 
 ## 4. Review and ship
 
@@ -109,7 +128,8 @@ the other threads:
 - Then `ship-it`. Merge in dependency order, and rebase the remaining PRs after
   each merge.
 - When several PRs land together, install or deploy once at the end, from the
-  final main, not once per PR.
+  final main, not once per PR. Run ship-it's steps 5 and 6 yourself after the
+  last merge.
 
 ## 5. Track
 
