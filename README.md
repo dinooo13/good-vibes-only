@@ -4,6 +4,7 @@ Claude Code plugins that take care of the annoying parts of agent work, from bab
 
 [![Claude Code plugins](https://img.shields.io/badge/Claude_Code-plugins-d97757)](#install)
 [![Made for T3 Code](https://img.shields.io/badge/made_for-T3_Code-6e40c9)](https://github.com/pingdotgg/t3code)
+[![CI](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml/badge.svg)](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-2ea043)](LICENSE)
 
 ## Install
@@ -131,6 +132,6 @@ Lighthouse on the production build, a median of three runs per page and configur
 
 Several skills borrow ideas from Theo's [tstack](https://github.com/t3dotgg/tstack): review-loop from `council` and `sol-loop`, ship-it from `babysit-pr` and `full-send`, and pr-comments from `leaving-pr-comments`.
 
-The usage-limits scripts have offline tests: `tests/usage-limits.sh`.
+Before a push, run `scripts/check-plugins.sh` (manifests and skill frontmatter) and `tests/usage-limits.sh` (offline tests for the usage-limits scripts). CI runs both, plus ShellCheck and Claude Code's plugin validator.
 
 [MIT](LICENSE) © Fabian Meyer
