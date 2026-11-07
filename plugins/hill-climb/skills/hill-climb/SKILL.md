@@ -1,6 +1,6 @@
 ---
 name: hill-climb
-description: Improve something round by round until an independent critic scores it at or above a target out of 10, for UI and UX, visual fidelity against references, a game scene, copy or a site. A fresh critic captures the current state, scores it with a fixed rubric and ranks the defects; implementers fix the top ones; repeat. Use when the user gives a target score ("keep iterating until the reviewer gives at least 9"), says "hill climb", or asks for critic rounds. Pairs well with /goal.
+description: Improve something round by round until an independent critic scores it at or above a target out of 10, for UI and UX, visual fidelity against references, a game scene, copy or a site. A fresh critic captures the current state, scores it with a fixed rubric and ranks the defects; implementers fix the top ones; repeat. Use when the user gives a target score ("keep iterating until the reviewer gives at least 9"), says "hill climb", or asks for critic rounds. Pairs well with /goal. Not for code review; that is review-loop.
 ---
 
 # Hill climb
@@ -57,9 +57,15 @@ already said go.
    Sonnet for clear fixes, Opus `high` for judgement. Give them worktrees or
    disjoint files. Integrate, build, and commit a snapshot for the next critic.
 4. **Measure one at a time.** Measurements on shared hardware (GPU, Neural
-   Engine, a simulator) need a lock: `mkdir /tmp/<repo>-<resource>.lock`,
-   and wait in the background if it's taken. Fix the real defect, not the
-   metric. If the headline drops, fix that first.
+   Engine, a simulator) need a lock. Put these rules in each implementer's
+   task text:
+   - Take the lock with `mkdir /tmp/<repo>-<resource>.lock`, and put an
+     `owner` file inside it.
+   - If it's taken, wait with one background `until mkdir …; do sleep 30; done`.
+   - Release it with `rm -r`, and never break someone else's lock.
+
+   Fix the real defect, not the metric. If the headline drops, fix that
+   first.
 
 ## Stopping
 

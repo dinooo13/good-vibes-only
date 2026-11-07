@@ -16,14 +16,15 @@ close anything.
   `gh repo list --limit 50 --json nameWithOwner,pushedAt,isArchived,isFork`.
 - **Since:** the timestamp in `~/.local/state/good-vibes-only/digest-last-run`,
   or 24 hours (72 on a Monday) if the file doesn't exist. After a full or
-  scheduled run, write the new timestamp. A one-off digest of a single repo
-  doesn't update it.
+  scheduled run, store the time the run started, so nothing that arrives
+  during the run is lost. A one-off digest of a single repo doesn't update
+  it.
 
 ## Collect
 
 - **People waiting on the user:** new issues and comments from anyone except
   the user (`gh api user --jq .login`) and bots
-  (`gh search issues --owner <owner> --updated ">=<date>"`). Also open review
+  (`gh search issues --owner <owner> --updated ">=<date>" --include-prs`). Also open review
   requests. Mark first-time contributors.
 - **The user's PRs:** `gh pr list --author @me --json` with
   `mergeStateStatus`, `reviewDecision` and `statusCheckRollup`. Classify each

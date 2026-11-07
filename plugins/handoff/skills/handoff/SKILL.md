@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Write a self-contained brief so a new session, a new T3 thread or a /goal run can continue the work without this thread's history. Use when the user says "write a handoff", "hand this over", "start a new thread for this", "continue in another session", or "do the next round in the same manner", and before launching a T3 thread or a long-running implementer that must work alone.
+description: Write a self-contained brief so a new session, a new T3 thread or a /goal run can continue the work without this thread's history. Use when the user says "write a handoff", "hand this over", "start a new thread for this", "continue in another session", or "do the next round in a new session", and before launching a T3 thread or a long-running implementer that must work alone.
 ---
 
 # Handoff
@@ -45,14 +45,18 @@ words.
 
 ## Launching in T3
 
+- **Commit first.** A new worktree starts from `baseRef` without your
+  uncommitted edits. Push too, unless you use `startFromOrigin: false`. Put
+  that SHA under "Starting point".
 - **Code changes** get
   `workspaceStrategy: {type: "worktree", baseRef, branch}`. To stack on a
   branch, use it as `baseRef` with `startFromOrigin: false`.
-- **Read-only work** uses `{type: "root"}`.
+- **Read-only work** uses `{type: "root"}`, with "read only" written into the
+  message.
 - Pass `projectId`, plus `environmentId` for another machine
   (`t3_environment_links` lists them).
 - Pass `modelSelection` only if the user named a model.
-- Set `delegatedFrom` to this thread.
+- Set `delegatedFrom` to `{environmentId, threadId, title}` of this thread.
 
 Give the user the thread's `link`, and don't poll it. If this thread must hear
 back, put your thread id under "Coordinate" and ask for a `t3_thread_send`. If

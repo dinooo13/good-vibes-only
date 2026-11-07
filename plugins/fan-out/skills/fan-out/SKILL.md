@@ -58,20 +58,26 @@ Use one worktree per package.
 merged, then branch it from the updated main. Only the thread that owns a PR
 watches it.
 
-**Shared resources.** Use one lock for each resource:
+**Shared resources.** Use one lock for each resource, and put these rules in
+every child's task text:
 - Take it with `mkdir /tmp/<repo>-<resource>.lock`, with an `owner` file
   inside. The `mkdir` decides who goes.
 - If it's taken, wait with one background
   `until mkdir … 2>/dev/null; do sleep 30; done`.
-- Release it with `rm -r`.
+- Release it with `rm -r`, and never break someone else's lock.
 - Once all children run, send each the others' thread ids. They may tell each
   other about long holds.
 
 ## 4. Review, ship, track
 
-Run every PR through `review-loop`, then `ship-it`. Merge in dependency order
-and rebase the rest after each merge. Install or deploy once, from the final
-main.
+Run every PR through `review-loop`, then `ship-it`. For a PR from a
+short-work child, point the reviewer at the child's branch:
+`git diff <base>..origin/<branch>` after a fetch, or the child's worktree
+from `t3_worktree_list`.
+
+Merge in dependency order. Each remaining PR's owner rebases it when it falls
+behind; ship-it does that. You rebase only the PRs you own. Install or deploy
+once, from the final main.
 
 Keep a table (issue, owner, branch, PR, state) and answer status questions
 from it. Follow notifications instead of polling. Cancel children you no
@@ -81,8 +87,11 @@ list the follow-ups. File them only if the user asks.
 ## Plan-only
 
 For an overnight run:
-- Plan the open issues that have no comment starting `## Plan (fan-out)` newer
-  than their last edit. Skip `blocked` and `draft` issues.
+- Plan the open issues that have no plan yet. An issue counts as planned when
+  it has a comment starting `## Plan (fan-out)` that is newer than both the
+  body's last edit (`lastEditedAt` through `gh api graphql`) and its newest
+  other comment. Don't go by `updatedAt`; your own plan comment bumps it.
+  Skip `blocked` and `draft` issues.
 - Post each plan as a comment that starts with that heading and ends with the
   open questions.
 - Never implement, edit, label or close anything.

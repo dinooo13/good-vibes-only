@@ -32,9 +32,13 @@ and `origin/<branch>` separately: one with later commits is not done.
    only when all of these hold:
    - its branch is merged
    - `git status --porcelain` is empty
-   - it has nothing unpushed
+   - it has no commits beyond the merged PR's `headRefOid`
+   - `git status --porcelain --ignored` shows only build or dependency output
+     (`node_modules`, `dist`, `.build` and the like). Report worktrees that
+     hold ignored `.env` files, databases or `hill-climb/` media.
    - it belongs to no unsettled T3 thread. To check, call `t3_thread_list`
-     with `allProjects: true` and `settled: false`, then `t3_worktree_list`
+     with `allProjects: true`, `settled: false` and `includeSubagents: true`,
+     paging with `cursor` until the list ends. Then call `t3_worktree_list`
      for each of those threads. Idle threads count too.
 
    Then run `git worktree prune`.

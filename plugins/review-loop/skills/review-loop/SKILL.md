@@ -63,20 +63,23 @@ Check each finding and its severity yourself.
   follow-up.
 
 Keep a ledger with the id, severity and outcome of each finding. Re-run the
-checks, and if the diff grew, cut it back first.
+checks, and if the diff grew, cut it back first. Record the SHA each round
+reviewed: commit first, or use `git stash create`.
 
-The next round gets a fresh reviewer, with the brief, the ledger and the
-change since the last round. It checks only the open ids and the changed code.
+The next round gets a fresh reviewer, with the brief, the ledger and
+`git diff <last reviewed sha>`. It checks only the open ids and the changed
+code.
 
 ## Stopping
 
-- **Done:** every reviewer approves the current diff and no blocker or should
-  is open.
+- **Done:** every reviewer approves the current diff, or the last round
+  returned only nits, and no blocker or should is open.
 - **Stuck:** a finding is still disputed after two replies, or the budget ran
   out. Show both sides in a few lines and let the user decide.
 
-Add the scores to the PR description, before the model line. Edit the
-description; don't post a comment.
+If there is a PR, add the scores to its description, before the model line.
+Edit the description; don't post a comment. Without a PR, put them in the
+report.
 
 ```markdown
 ## Review loop

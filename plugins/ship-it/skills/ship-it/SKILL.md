@@ -37,7 +37,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    - Check the PR for secrets.
 
    Open a real PR, not a draft. Register it with `link_pull_request`.
-3. **Babysit.** Handle the existing checks and comments, then call
+3. **Babysit.** Handle the existing checks and comments. If the gate in step
+   4 already passes, go straight to step 4. Otherwise call
    `watch_pull_request` and end your turn. Don't use sleep loops or
    `gh pr checks --watch`. Children never watch; the owning thread does. On
    each wake, act only on things newer than your latest push:
@@ -52,8 +53,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 4. **Merge gate.** On the latest head, all of these must hold:
    - your proof covers the diff
    - required checks are green
-   - the bots the repo waits on (Greptile, Macroscope) have reviewed it.
-     CodeRabbit never gates.
+   - the bots the repo waits on, if it runs any (such as Greptile or
+     Macroscope), have reviewed it. CodeRabbit never gates.
    - every finding is fixed or answered
    - no human review requests changes
    - GitHub reports the PR as up to date, not `BEHIND` or `DIRTY`
@@ -61,21 +62,26 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    If it's behind, rebase, push with `--force-with-lease` (only this PR's
    branch) and wait for green again. Never use `--admin`. Without permission
    to merge, report it ready and call `unwatch_pull_request`. Otherwise run
-   `git fetch`, check the PR once more, and merge with the repo's method.
-   Many of the user's repos are rebase only. Merge stacked PRs in order.
+   `git fetch`, check the PR once more, and merge with the repo's method:
+   `gh pr merge --<method> --match-head-commit <gated sha>`. Many of the
+   user's repos are rebase only. Merge stacked PRs in order, rebasing the next
+   one onto the new base after each merge.
 5. **After the merge.**
    - Pull main in the root checkout (`git -C <root> pull --ff-only`), if it's
      on the default branch and clean.
    - Run the `After merge` step from that fresh main: install, deploy or
      both. Replace only the installed copy of an app, never with `killall`.
    - For a deploy pipeline, find the run for the merge commit with
-     `gh run list --commit <sha>`. Retry once after about 30 seconds if it
-     isn't there yet. Wait for it with one background
+     `gh run list --commit <sha>`. If it isn't there yet, retry once with a
+     background `sleep 30; gh run list --commit <sha>` and
+     `t3_background_wait`. Wait for the run with one background
      `gh run watch <id> --exit-status`, then `t3_background_wait`.
    - Check the change live, in the preview browser or with curl. Look at the
      changed thing, not just at a 200.
 6. **Clean up.**
-   - Delete the remote branch unless the repo does that itself.
+   - Delete the remote branch unless the repo does that itself. First check
+     that `origin/<branch>` still equals the PR head, so nothing pushed after
+     the merge is lost.
    - Delete the local branch only if no worktree has it checked out. Your own
      T3 worktree usually does, so leave it for `tidy-repos`. After a squash or
      rebase merge, `-D` is fine once GitHub shows the PR merged and the local
