@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 968 292" width="968" height="292" role="img" aria-label="fan-out: one request becomes three issue threads, each running plan, your go, implement, verify, review-loop and ship-it until merged">
+<style>text{font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;font-size:15px;fill:#e6edf3} .m{font-family:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;font-size:14px}</style>
+<rect x="12" y="96" width="168" height="76" rx="12" fill="#0c2d4a" stroke="#1f6feb" stroke-width="1.5"/>
+<text x="96.0" y="127" text-anchor="middle" class="m" style="fill:#79c0ff">"fan out</text>
+<text x="96.0" y="149" text-anchor="middle" class="m" style="fill:#79c0ff">issues 36–38"</text>
+<path d="M180 134.0 C 204 134.0, 188 60.0, 198 60.0" fill="none" stroke="#3d444d" stroke-width="1.5"/>
+<text x="205" y="65.0" style="fill:#9198a1;font-size:14px">#36</text>
+<rect x="240" y="40" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="288.0" y="65.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">plan</text>
+<line x1="336" y1="60.0" x2="344" y2="60.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="344" y="40" width="96" height="40" rx="20" fill="#2e2500" stroke="#9e6a03" stroke-width="1.5"/>
+<text x="392.0" y="65.0" text-anchor="middle" style="fill:#f2cc60;font-weight:600">your go</text>
+<line x1="440" y1="60.0" x2="448" y2="60.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="448" y="40" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="496.0" y="65.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">implement</text>
+<line x1="544" y1="60.0" x2="552" y2="60.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="552" y="40" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="600.0" y="65.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">verify</text>
+<line x1="648" y1="60.0" x2="656" y2="60.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="656" y="40" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="704.0" y="65.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">review-loop</text>
+<line x1="752" y1="60.0" x2="760" y2="60.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="760" y="40" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="808.0" y="65.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">ship-it</text>
+<line x1="856" y1="60.0" x2="864" y2="60.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="864" y="40" width="96" height="40" rx="20" fill="#0f2a18" stroke="#2ea043" stroke-width="1.5"/>
+<text x="912.0" y="65.0" text-anchor="middle" style="fill:#3fb950;font-weight:600">merged ✓</text>
+<path d="M180 134.0 C 204 134.0, 188 132.0, 198 132.0" fill="none" stroke="#3d444d" stroke-width="1.5"/>
+<text x="205" y="137.0" style="fill:#9198a1;font-size:14px">#37</text>
+<rect x="240" y="112" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="288.0" y="137.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">plan</text>
+<line x1="336" y1="132.0" x2="344" y2="132.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="344" y="112" width="96" height="40" rx="20" fill="#2e2500" stroke="#9e6a03" stroke-width="1.5"/>
+<text x="392.0" y="137.0" text-anchor="middle" style="fill:#f2cc60;font-weight:600">your go</text>
+<line x1="440" y1="132.0" x2="448" y2="132.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="448" y="112" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="496.0" y="137.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">implement</text>
+<line x1="544" y1="132.0" x2="552" y2="132.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="552" y="112" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="600.0" y="137.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">verify</text>
+<line x1="648" y1="132.0" x2="656" y2="132.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="656" y="112" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="704.0" y="137.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">review-loop</text>
+<line x1="752" y1="132.0" x2="760" y2="132.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="760" y="112" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="808.0" y="137.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">ship-it</text>
+<line x1="856" y1="132.0" x2="864" y2="132.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="864" y="112" width="96" height="40" rx="20" fill="#0f2a18" stroke="#2ea043" stroke-width="1.5"/>
+<text x="912.0" y="137.0" text-anchor="middle" style="fill:#3fb950;font-weight:600">merged ✓</text>
+<path d="M180 134.0 C 204 134.0, 188 204.0, 198 204.0" fill="none" stroke="#3d444d" stroke-width="1.5"/>
+<text x="205" y="209.0" style="fill:#9198a1;font-size:14px">#38</text>
+<rect x="240" y="184" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="288.0" y="209.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">plan</text>
+<line x1="336" y1="204.0" x2="344" y2="204.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="344" y="184" width="96" height="40" rx="20" fill="#2e2500" stroke="#9e6a03" stroke-width="1.5"/>
+<text x="392.0" y="209.0" text-anchor="middle" style="fill:#f2cc60;font-weight:600">your go</text>
+<line x1="440" y1="204.0" x2="448" y2="204.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="448" y="184" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="496.0" y="209.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">implement</text>
+<line x1="544" y1="204.0" x2="552" y2="204.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="552" y="184" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="600.0" y="209.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">verify</text>
+<line x1="648" y1="204.0" x2="656" y2="204.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="656" y="184" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="704.0" y="209.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">review-loop</text>
+<line x1="752" y1="204.0" x2="760" y2="204.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="760" y="184" width="96" height="40" rx="20" fill="#151b23" stroke="#3d444d" stroke-width="1.5"/>
+<text x="808.0" y="209.0" text-anchor="middle" style="fill:#e6edf3;font-weight:400">ship-it</text>
+<line x1="856" y1="204.0" x2="864" y2="204.0" stroke="#3d444d" stroke-width="1.5"/>
+<rect x="864" y="184" width="96" height="40" rx="20" fill="#0f2a18" stroke="#2ea043" stroke-width="1.5"/>
+<text x="912.0" y="209.0" text-anchor="middle" style="fill:#3fb950;font-weight:600">merged ✓</text>
+<path d="M392.0 228 L392.0 248" stroke="#9e6a03" stroke-width="1.5" stroke-dasharray="3 3"/>
+<text x="392.0" y="272" text-anchor="middle" style="fill:#9198a1;font-size:14px">all three plans, approved in one place</text>
+<text x="912.0" y="272" text-anchor="middle" style="fill:#9198a1;font-size:14px">one PR each</text>
+</svg>
