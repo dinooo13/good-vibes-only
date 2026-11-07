@@ -25,6 +25,7 @@ The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code).
 | [project-digest](#project-digest) | "what needs me?" | Who's waiting on you, what's broken, what's ready to merge |
 | [tidy-repos](#tidy-repos) | "clean up branches" | Merged branches and clean worktrees go; stale work gets listed |
 | [verify](#verify) | "verify yourself" | Proof you can see: preview browser, simulator, the real app, the hard states |
+| [build-verification-environment](#build-verification-environment) | "build a verification environment" | Scripts, demo mode, shots, benchmarks, CI checks and a `## Verify` section, so agents can prove their own work |
 | [pr-comments](#pr-comments) | "draft a reply" | Short comments in your voice, drafts before people see them, a note on bot replies |
 
 ### ship-it
@@ -66,6 +67,18 @@ Branches whose PRs merged, worktrees that are clean and merged, stale refs: gone
 ### verify
 
 Green mocked tests aren't proof. verify picks the way to see the change working: the T3 preview browser for the web, the device tools for simulators, the built app for macOS, curl and logs for servers. It also opens the states that hide bugs, like everything switched on, the longest text and the phone width. It never kills the copy of the app you're using.
+
+### build-verification-environment
+
+verify is only as good as the tools a repo gives it. This skill builds those tools. It audits what's there, proposes a plan for the platform, and once you say go, it adds:
+- a build script
+- a demo mode with fictional seed data
+- scripted screenshots of every screen in light and dark
+- fixtures and a benchmark with a baseline
+- a CLI into the core logic
+- CI checks that keep the docs and numbers honest
+
+It also writes the `## Verify` and `## Ship` sections that verify and ship-it read. Repos that benchmark get `scripts/lock.sh`, so parallel agents take turns on the GPU instead of measuring each other. It never touches the copy of the app you're running, and it never puts real data in fixtures.
 
 ### pr-comments
 

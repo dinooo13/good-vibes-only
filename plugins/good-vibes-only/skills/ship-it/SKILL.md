@@ -20,6 +20,7 @@ Follow it, including rules like "never kill the copy the user is running". If
 the section is missing, infer the steps from the scripts, CI and recent PRs.
 At the end, propose a section with the lines `Verify`, `Merge`,
 `After merge` and `Live check`. Don't commit it unasked.
+`build-verification-environment` writes this section along with `## Verify`.
 
 ## Steps
 

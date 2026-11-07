@@ -78,8 +78,10 @@ branch.
   with the open questions and the order. On their go, for all issues or for
   each one, pass the go and their decisions to each thread with
   `t3_thread_send`.
-- **Shared resources.** Use one lock per resource, with the exact path filled
-  in (such as `/tmp/pladder-gpu.lock`):
+- **Shared resources.** Use one lock per resource. If the repo has
+  `scripts/lock.sh`, wrap each measurement in it
+  (`scripts/lock.sh gpu -- <bench>`): it waits, names the owner and always
+  releases. Otherwise fill in the exact path (such as `/tmp/pladder-gpu.lock`):
   - Take it with `mkdir <lock path>`, with an `owner` file inside naming the
     thread. The `mkdir` decides who goes.
   - If it's taken, wait with one background

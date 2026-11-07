@@ -24,8 +24,9 @@ already said go.
   Add one holistic headline axis that the target applies to, such as "same
   game" or "feels first-party". Easy metrics like colour statistics never
   stand in for it.
-- **Capture plan:** fixed shots, captured the same way every round. It
-  includes the hard states:
+- **Capture plan:** fixed shots, captured the same way every round. Reuse
+  the shot commands and presets named in `## Verify` when the repo has them.
+  It includes the hard states:
   - everything switched on
   - the longest text
   - the smallest and largest window

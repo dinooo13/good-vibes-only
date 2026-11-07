@@ -9,7 +9,7 @@
     {
       "name": "good-vibes-only",
       "source": "./plugins/good-vibes-only",
-      "description": "Agent workflow skills for T3 Code: land changes, review them in loops, fan issues out to parallel agents, hand work over, hill-climb against a critic, and keep repos tidy.",
+      "description": "Agent workflow skills for T3 Code: land changes, review them in loops, fan issues out to parallel agents, hand work over, hill-climb against a critic, build verification environments, and keep repos tidy.",
       "category": "development"
     }
   ]
