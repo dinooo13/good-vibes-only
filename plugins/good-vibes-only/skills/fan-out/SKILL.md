@@ -1,6 +1,6 @@
 ---
 name: fan-out
-description: Take several GitHub issues from plan to merged PRs in parallel. One planner per issue, a short summary for the user's approval, one implementer per worktree, then review-loop and ship-it for each PR, merged in order. Use when the user names issues to implement ("look at issues 36, 37 and 38", "implement the open issues", "spawn a planner and an implementer for each") or says "fan out". With --plan-only it only posts plans on the issues, for example overnight.
+description: Take several GitHub issues from plan to merged PRs in parallel. One planner per issue and a short summary for the user's approval. Then one T3 thread per issue, in its own worktree, that implements the issue, reviews it and ships its PR, with dependencies merged first. Use when the user names issues to implement ("look at issues 36, 37 and 38", "implement the open issues", "spawn a planner and an implementer for each") or says "fan out". With --plan-only it only posts plans on the issues, for example overnight.
 ---
 
 # Fan out
@@ -21,15 +21,16 @@ unless the user names others:
   mode, put them in the plan comment instead.
 - **Note how the issues interact:**
   - B needs A merged.
-  - Two issues edit the same files: group them or run them one after the
-    other.
+  - Two issues edit the same files: run them one after the other.
   - Something can't be shared: benchmarks, GPU measurements, a device, a fixed
     port, migrations.
-- **Group** small related issues so you start fewer agents.
+
+Keep one issue per thread. Group issues into one thread only when the user
+asks.
 
 ## 2. Plan and approve
 
-Start one planner per package with `delegate_task` (`role: "design"`,
+Start one planner per issue with `delegate_task` (`role: "design"`,
 `mode: "async"`). Write "read only" into the task text. Ask for the approach,
 the files, the steps, the tests, how to verify, the risks and the open
 questions.
@@ -38,57 +39,55 @@ Show the user 5 to 10 sentences per plan, with the open questions and the
 order. Wait for their go unless they said to skip it or passed `--auto`. Pass
 their decisions on as "decided, do not reopen".
 
-## 3. Implement
+## 3. One thread per issue
 
-Use one worktree per package. Tell every child to prove its work with the
-`verify` skill.
+In T3, start one thread per issue with `t3_thread_launch`:
+- `workspaceStrategy: {type: "worktree", baseRef: <current default branch>, branch}`
+- `delegatedFrom` set to this thread
+- `modelSelection` for the implementer model above
+- a brief written with the `handoff` skill
 
-- **Short work:** `delegate_task` (`role: "implementation"`,
-  `isolation: "worktree"`). The worktree starts from your own commit, so first
-  pull or rebase onto the current main. The child commits on a named branch
-  and pushes it, and you open the PR with `gh pr create --head <branch>`.
-- **Long work, or work that needs the user:** start a T3 thread with
-  `t3_thread_launch` and `workspaceStrategy: {type: "worktree", baseRef, branch}`,
-  with a brief written by the `handoff` skill. A launched thread doesn't report
-  back on its own. Give it your thread id and ask it to `t3_thread_send` you
-  the PR URL, the SHA and the state when the PR is ready and again when it
-  has merged. Its brief says to run `review-loop`, then `ship-it`, on its own
-  PR; you only track it. When several PRs land, tell it to skip ship-it's install,
-  deploy and live check; you do those once at the end.
+Outside T3, use one worktree subagent per issue instead.
 
-**Dependencies.** Start a dependent package only after its dependency has
-merged, then branch it from the updated main. Only the thread that owns a PR
-watches it.
+Each brief holds:
+- the approved plan, and the user's decisions as "decided, do not reopen"
+- "Done when"
+- the instruction to prove the work with `verify`, then run `review-loop` and
+  `ship-it` on its own PR. The thread owns and watches that PR. Tell it to
+  merge only if the user allowed merges.
+- your thread id, and a request to `t3_thread_send` you the PR URL, the SHA
+  and the state when the PR is ready and again when it has merged. A launched
+  thread doesn't report back on its own.
+- when several PRs land, an instruction to skip ship-it's install, deploy and
+  live check; you do those once at the end
+
+**Dependencies.** Launch a dependent issue's thread only after the thread it
+depends on reports its merge. Its `baseRef` is the updated default branch.
 
 **Shared resources.** Use one lock for each resource, and put these rules in
-every child's task text, with the exact lock path filled in (such as
+every brief, with the exact lock path filled in (such as
 `/tmp/pladder-gpu.lock`):
-- Take it with `mkdir /tmp/<repo>-<resource>.lock`, with an `owner` file
-  inside. The `mkdir` decides who goes.
+- Take it with `mkdir <lock path>`, with an `owner` file inside naming the
+  thread. The `mkdir` decides who goes.
 - If it's taken, wait with one background
-  `until mkdir … 2>/dev/null; do sleep 30; done`.
+  `until mkdir <lock path> 2>/dev/null; do sleep 30; done`.
 - Release it with `rm -r`, and never break someone else's lock.
-- When a child is cancelled or fails, you remove the locks whose `owner`
-  file names it.
-- Once all children run, send each the others' thread ids. They may tell each
+- When a thread is stopped or fails, you remove the locks its `owner` file
+  names.
+- Once all threads run, send each the others' thread ids. They may tell each
   other about long holds.
 
-## 4. Review, ship, track
+## 4. Track and finish
 
-Launched threads review and ship their own PRs. For a short-work child's PR,
-which you own, run `review-loop`, then `ship-it` from step 3; the child's
-`verify` report is the proof. Point the reviewer at the child's branch:
-`git diff <base>..origin/<branch>` after a fetch, or the child's worktree
-from `t3_worktree_list`.
+Keep a table (issue, thread link, branch, PR, state) and answer status
+questions from it. Follow the threads' messages instead of polling them.
+Rebasing is each thread's job; ship-it rebases when a PR falls behind. After
+the last merge, pull main once and run ship-it's install or deploy and its
+live check yourself.
 
-Merge in dependency order. Each remaining PR's owner rebases it when it falls
-behind; ship-it does that. You rebase only the PRs you own. Install or deploy
-once, from the final main.
-
-Keep a table (issue, owner, branch, PR, state) and answer status questions
-from it. Follow notifications instead of polling. Cancel children you no
-longer need with `task_cancel`. At the end, comment on partly done issues with `pr-comments` and
-list the follow-ups. File them only if the user asks.
+At the end, comment on partly done issues with `pr-comments` and list the
+follow-ups. File them only if the user asks. Settle the threads that finished,
+if the user wants that.
 
 ## Plan-only
 
