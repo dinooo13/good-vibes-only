@@ -3,7 +3,7 @@
 Twelve Claude Code skills that take care of the annoying parts of agent work, from proving a change works to babysitting its PR, so your agents stay on track and you don't have to watch them.
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97757)](#install)
-[![Made for T3 Code](https://img.shields.io/badge/made_for-T3_Code-6e40c9)](https://github.com/pingdotgg/t3code)
+[![Best in T3 Code](https://img.shields.io/badge/best_in-T3_Code-6e40c9)](https://github.com/pingdotgg/t3code)
 [![CI](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml/badge.svg)](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-2ea043)](LICENSE)
 
@@ -18,7 +18,7 @@ In Claude Code, add the marketplace and install the plugin:
 
 That's it. Claude picks the skills up from what you say, or you call one directly, like `/good-vibes-only:ship-it`.
 
-The skills are made for [T3 Code](https://github.com/pingdotgg/t3code). They use its threads, delegated agents, PR watching, preview browser, device tools and scheduled tasks.
+The skills work in any Claude Code session, and they're at their best in [T3 Code](https://github.com/pingdotgg/t3code). There they use its threads, delegated agents, PR watching, preview browser, device tools and scheduled tasks. Without T3, they fall back where they can: verify drives the browser with `playwright-cli`, and fan-out runs one worktree subagent per issue.
 
 ## What you get
 
@@ -39,7 +39,7 @@ The skills are made for [T3 Code](https://github.com/pingdotgg/t3code). They use
 | [build-verification-environment](#build-verification-environment) | "build a verification environment" | Build script, demo mode, scripted shots, benchmarks and CI checks, so agents can prove their own work |
 | [pr-comments](#pr-comments) | "draft a reply on the PR" | Short comments in your voice, drafts before people see them, a note on bot replies |
 | **Let agents run on their own** | | |
-| [fan-out](#fan-out) | "fan out issues 36, 37 and 38" | One T3 thread per issue: plan, your go, implement, verify, review, ship |
+| [fan-out](#fan-out) | "fan out issues 36, 37 and 38" | One thread per issue: plan, your go, implement, verify, review, ship |
 | [handoff](#handoff) | "write a handoff" | A brief that lets a new thread carry on without your history |
 | [hill-climb](#hill-climb) | "keep iterating until the reviewer gives at least 9" | Critic rounds with a fixed rubric until the score reaches the target |
 | **Keep tabs** | | |
@@ -94,7 +94,7 @@ Comments that sound like you on a good day: two or three sentences, the point fi
 
 ### fan-out
 
-Hand it a handful of issues. It writes the missing "Done when" criteria, works out which issues depend on each other, and starts one T3 thread per issue in its own worktree. Each thread runs the whole flow: a Fable planner, a short summary for you, an Opus implementer, then verify, review-loop and ship-it on its own PR. You approve all the plans in one place. Threads take turns on shared resources like benchmarks, and a dependent issue starts only after the issue it needs has merged. With `--plan-only` it just posts plans on the issues, which makes a nice overnight job.
+Hand it a handful of issues. It writes the missing "Done when" criteria, works out which issues depend on each other, and starts one thread per issue in its own worktree (a T3 thread, or a worktree subagent outside T3). Each thread runs the whole flow: a Fable planner, a short summary for you, an Opus implementer, then verify, review-loop and ship-it on its own PR. You approve all the plans in one place. Threads take turns on shared resources like benchmarks, and a dependent issue starts only after the issue it needs has merged. With `--plan-only` it just posts plans on the issues, which makes a nice overnight job.
 
 ### handoff
 
