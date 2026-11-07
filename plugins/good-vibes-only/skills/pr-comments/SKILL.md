@@ -1,6 +1,6 @@
 ---
 name: pr-comments
-description: Write and post GitHub comments, replies and discussion posts on the user's behalf. Short, in the user's voice, shown as a draft before anything goes to a person, and with an attribution note on replies to bots and reviewers. Use for every comment on an issue, PR, review thread or discussion, and when the user says "draft a reply", "comment on the issue", "answer the bot", or "leave a comment on the discussion".
+description: Write and post GitHub comments, replies and discussion posts on the user's behalf. Short, in the user's voice, shown as a draft before anything goes to a person, and with an attribution note on replies to review bots. Use for every comment on an issue, PR, review thread or discussion, and when the user says "draft a reply on the PR", "comment on the issue", "answer the bot", or "leave a comment on the discussion".
 ---
 
 # PR comments
@@ -10,10 +10,12 @@ description: Write and post GitHub comments, replies and discussion posts on the
 - **People** (users, maintainers, contributors, discussions): draft first and
   show the user the exact text. Post it only after their OK, or when they said
   to post without asking. Once the user has approved the exact wording, post
-  it as their own words, without an attribution note.
-- **Bots and review findings** (CodeRabbit, Macroscope, Greptile, an agent's
-  review), and explanations before resolving a thread: you may post these
-  directly, with this note on top:
+  it as their own words, without an attribution note. A post to a person
+  without approved wording carries the note. A human reviewer's thread
+  follows this flow too, and only the user resolves it.
+- **Bots and agent reviews** (CodeRabbit, Macroscope, Greptile, an agent's
+  review), in threads a bot or agent opened: you may reply directly, and
+  resolve those threads afterwards, with this note on top:
 
 ```md
 > [!NOTE]
@@ -59,7 +61,9 @@ on the discussion.
   private details.
 - Preview the Markdown so quotes and blank lines render as intended.
 - Post it with the matching `gh` command: `gh pr comment`, `gh issue comment`,
-  `gh api` for review replies, or `gh api graphql` for discussions.
+  `gh api` for review replies, or `gh api graphql` for discussions. Pass the
+  body from a file (`--body-file`, or `-F body=@file` for `gh api`), never
+  inline, where backticks would run as shell commands.
 - Confirm GitHub returned the URL.
 - Resolve a review thread only after its reply is posted.
 - Report the link.

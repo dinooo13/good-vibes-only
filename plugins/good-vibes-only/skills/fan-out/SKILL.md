@@ -52,7 +52,8 @@ Use one worktree per package. Tell every child to prove its work with the
   with a brief written by the `handoff` skill. A launched thread doesn't report
   back on its own. Give it your thread id and ask it to `t3_thread_send` you
   the PR URL, the SHA and the state when the PR is ready and again when it
-  has merged. When several PRs land, tell it to skip ship-it's install,
+  has merged. Its brief says to run `review-loop`, then `ship-it`, on its own
+  PR; you only track it. When several PRs land, tell it to skip ship-it's install,
   deploy and live check; you do those once at the end.
 
 **Dependencies.** Start a dependent package only after its dependency has
@@ -60,19 +61,23 @@ merged, then branch it from the updated main. Only the thread that owns a PR
 watches it.
 
 **Shared resources.** Use one lock for each resource, and put these rules in
-every child's task text:
+every child's task text, with the exact lock path filled in (such as
+`/tmp/pladder-gpu.lock`):
 - Take it with `mkdir /tmp/<repo>-<resource>.lock`, with an `owner` file
   inside. The `mkdir` decides who goes.
 - If it's taken, wait with one background
   `until mkdir … 2>/dev/null; do sleep 30; done`.
 - Release it with `rm -r`, and never break someone else's lock.
+- When a child is cancelled or fails, you remove the locks whose `owner`
+  file names it.
 - Once all children run, send each the others' thread ids. They may tell each
   other about long holds.
 
 ## 4. Review, ship, track
 
-Run every PR through `review-loop`, then `ship-it`. For a PR from a
-short-work child, point the reviewer at the child's branch:
+Launched threads review and ship their own PRs. For a short-work child's PR,
+which you own, run `review-loop`, then `ship-it` from step 3; the child's
+`verify` report is the proof. Point the reviewer at the child's branch:
 `git diff <base>..origin/<branch>` after a fetch, or the child's worktree
 from `t3_worktree_list`.
 
@@ -94,6 +99,7 @@ For an overnight run:
   other comment. Don't go by `updatedAt`; your own plan comment bumps it.
   Skip `blocked` and `draft` issues.
 - Post each plan as a comment that starts with that heading and ends with the
-  open questions.
+  open questions. `--plan-only` is the OK to post these, without an
+  attribution note, so the heading stays first.
 - Never implement, edit, label or close anything.
 - Report what you planned, what you skipped, and why.

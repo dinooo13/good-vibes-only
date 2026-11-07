@@ -10,7 +10,7 @@ Claude Code plugins that give your agents good vibes. Useful skills that take ca
 
 Two plugins: `usage-limits` keeps long runs alive, and `good-vibes-only` bundles the workflow skills below. They're bundled because they lean on each other: ship-it proves changes with verify and answers bots with pr-comments, and fan-out hands every PR to review-loop and ship-it. Claude picks them up from what you say, or you call them directly, for example `/good-vibes-only:ship-it`.
 
-The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code). They use its tools for threads, delegated agents, PR watching, the preview browser and scheduled tasks. Elsewhere they fall back to the harness's own subagent and browser tools.
+The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code). They use its tools for threads, delegated agents, PR watching, the preview browser and scheduled tasks.
 
 ## The lineup
 
@@ -63,7 +63,7 @@ The wait belongs to the Claude Code session. If you close the cli or the app, no
 
 ### review-loop
 
-A second opinion, as many times as it takes (three rounds by default). The reviewer, Opus at xhigh unless you name another, runs in its own thread with no history, gives a score out of 10, and labels each finding blocker, should or nit. You fix what's real, push back with evidence, and decline scope creep. Say "council" to get three providers at once. The scores per round end up in the PR description.
+A second opinion, as many times as it takes (three rounds by default). The reviewer, Opus at xhigh unless you name another, runs in its own thread with no history and labels each finding blocker, should or nit. You fix what's real, push back with evidence, and decline scope creep. Say "council" to get three providers at once. The verdicts per round end up in the PR description.
 
 ### fan-out
 

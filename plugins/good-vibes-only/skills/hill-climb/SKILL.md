@@ -57,7 +57,7 @@ already said go.
    Sonnet for clear fixes, Opus `high` for judgement. Give them worktrees or
    disjoint files. Integrate, build, and commit a snapshot for the next critic.
 4. **Measure one at a time.** Measurements on shared hardware (GPU, Neural
-   Engine, a simulator) use the lock from `fan-out`; put it in each
+   Engine, a simulator) use the lock in `fan-out`'s **Shared resources** rules; put it in each
    implementer's task text. Fix the real defect, not the metric. If the headline drops, fix that
    first.
 

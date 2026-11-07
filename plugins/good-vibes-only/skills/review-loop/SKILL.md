@@ -47,7 +47,6 @@ Find bugs, broken callers, and mismatches with the intent. Skip style unless it
 hides a bug. Flag code, tests or guards the intent does not need.
 blocker = intended case wrong. should = real bug callers will hit. nit = the rest.
 Reply:
-SCORE: <n>/10
 VERDICT: APPROVE or CHANGES
 R1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>
 ```
@@ -77,7 +76,7 @@ code.
 - **Stuck:** a finding is still disputed after two replies, or the budget ran
   out. Show both sides in a few lines and let the user decide.
 
-If there is a PR, add the scores to its description, before the model line.
+If there is a PR, add the verdicts to its description, before the model line.
 Edit the description; don't post a comment. Without a PR, put them in the
 report.
 
@@ -86,11 +85,11 @@ report.
 
 | Reviewer | Round 1 | Round 2 |
 | --- | --- | --- |
-| Claude Opus 5.5 (xhigh) | 7/10 | 9/10 |
+| Claude Opus 5.5 (xhigh) | CHANGES | APPROVE |
 ```
 
-If a reviewer gave no score, write `no score`. Push only if the user asked you
+Push only if the user asked you
 to push or ship. Report:
-- the rounds and the score per round
+- the rounds and each reviewer's verdict
 - the fixed and declined findings, with reasons
 - the diff size before and after

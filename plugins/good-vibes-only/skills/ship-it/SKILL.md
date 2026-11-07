@@ -36,7 +36,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 
    Open a real PR, not a draft. Register it with `link_pull_request`.
 3. **Babysit.** Handle the existing checks and comments. If the gate in step
-   4 already passes, go straight to step 4. Otherwise call
+   4 already passes, go straight to step 4. On a head you just pushed, the
+   gate needs finished check runs; no checks reported yet is not green. Otherwise call
    `watch_pull_request` and end your turn. Don't use sleep loops or
    `gh pr checks --watch`. Children never watch; the owning thread does. On
    each wake, act only on things newer than your latest push:
@@ -76,7 +77,7 @@ At the end, propose a section with the lines `Verify`, `Merge`,
      `t3_background_wait`. Wait for the run with one background
      `gh run watch <id> --exit-status`, then `t3_background_wait`.
    - Check the change live, the way `verify` checks production.
-6. **Clean up.**
+6. **Clean up.** Call `unwatch_pull_request` if the watch is still on.
    - Delete the branch on the remote and locally under `tidy-repos`'
      "Merged means" rule, unless the repo deletes it itself. Skip a local
      branch that a worktree has checked out (usually your own T3 worktree);

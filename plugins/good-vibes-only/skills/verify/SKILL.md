@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Prove that a change works by seeing it work, not by trusting mocked tests. Use the right tool per platform in T3 Code (preview browser for the web, device tools for simulators, the built app for macOS), cover the hard states, and report what is and isn't verified. Use when the user says "verify yourself", "check it in the preview browser", "test it in the simulator", "make sure it works", and whenever another skill asks for proof.
+description: Prove that a change works by seeing it work, not by trusting mocked tests. Use the right tool per platform in T3 Code (preview browser for the web, device tools for simulators, the built app for macOS), cover the hard states, and report what is and isn't verified. Use when the user says "verify yourself", "check it in the preview browser", "test it in the simulator", and whenever another skill asks for proof inside T3 Code.
 ---
 
 # Verify
@@ -17,7 +17,7 @@ prove a change, say so instead of guessing.
   - reproduce the bug, fix it, and run the same reproduction again
   - add one focused test that fails without the fix
 - **Web:** run a dev server or a preview build, and use the T3 preview
-  browser instead of `playwright-cli`:
+  browser (outside T3, `playwright-cli`):
   - `preview_open` and `preview_navigate` to load the page
   - `preview_act` to click and type
   - `preview_snapshot` to look at it
@@ -32,8 +32,8 @@ prove a change, say so instead of guessing.
 - **A physical iPhone:** install with the project's command and check that it
   launches. The user tests the hardware features.
 - **macOS apps:** build and launch your own copy, following the project's
-  rules for copies the user is running. Then screenshot its window or use
-  computer use.
+  rules for copies the user is running. Then screenshot its window, and use
+  computer use only as allowed below.
 - **Servers:** start one, curl its endpoints, and read the logs.
 - **Production:** load the live URL and look at the thing that changed, not
   just at the status code.
@@ -49,13 +49,13 @@ Bugs hide in the states nobody opens:
 - motion: typing, scrolling, animations
 
 Measurements on shared hardware (GPU, Neural Engine) run one at a time, under
-the lock from `fan-out`.
+the lock in `fan-out`'s **Shared resources** rules.
 
 ## Respect the user's setup
 
 - If the user says they'll test it, leave that part to them.
-- If they say they aren't using the machine, you may use computer use and
-  restart your own builds.
+- Use computer use when the user asks for it or says they aren't using the
+  machine. Then you may also restart your own builds.
 - Never kill the user's running copy of an app or their dev server; stop only
   what you started.
 - Leave a dev server running if the user wants to look at it.
