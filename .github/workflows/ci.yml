@@ -1,0 +1,35 @@
+name: CI
+
+# No paths filter, so the check can be required on main: GitHub leaves a
+# required check whose workflow a paths filter skipped waiting for good.
+# It takes well under a minute and needs no secrets.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Marketplace, plugin manifests and skill frontmatter
+        run: scripts/check-plugins.sh
+      - name: Claude Code's plugin validator
+        # Needs no login. Not --strict: the plugins have no icon and the hook
+        # command leaves ${CLAUDE_PLUGIN_ROOT} unquoted, both warnings only.
+        # Pinned, so a CLI release cannot turn main red on its own.
+        run: |
+          npm install --global --no-fund --no-audit @anthropic-ai/claude-code@2.1.316
+          claude plugin validate .
+          for p in plugins/*/; do claude plugin validate "$p"; done
+      - name: ShellCheck
+        run: shellcheck plugins/*/hooks/*.sh plugins/*/skills/*/scripts/*.sh scripts/*.sh tests/*.sh
+      - name: usage-limits tests
+        # Offline: fake security, curl and codexbar binaries stand in for the
+        # keychain, the usage endpoint and codexbar.
+        run: tests/usage-limits.sh
