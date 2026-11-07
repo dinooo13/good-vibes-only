@@ -1,7 +1,7 @@
 {
   "name": "good-vibes-only",
-  "version": "0.1.1",
-  "description": "Agent workflow skills for T3 Code: ship-it, review-loop, fan-out, handoff, hill-climb, verify, pr-comments, product-readme, web-quality, project-digest and tidy-repos.",
+  "version": "0.2.0",
+  "description": "Agent workflow skills for T3 Code: ship-it, review-loop, fan-out, handoff, hill-climb, verify, build-verification-environment, pr-comments, product-readme, web-quality, project-digest and tidy-repos.",
   "author": {
     "name": "Fabian Meyer",
     "url": "https://github.com/dinooo13"

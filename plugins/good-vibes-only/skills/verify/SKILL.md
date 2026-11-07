@@ -10,6 +10,13 @@ reproduction that fails before the fix and passes after, a screenshot of the
 real thing. Green mocked tests don't prove the user experience. If you can't
 prove a change, say so instead of guessing.
 
+## Project rules
+
+Read the `## Verify` section in `CLAUDE.md` or `AGENTS.md` first. It names
+the project's scripts, demo modes, shot commands, benchmarks and locks. Use
+those before improvising. If the section is missing and you had to
+improvise, say so in the report and suggest `build-verification-environment`.
+
 ## Pick the method
 
 - **Code without a UI:**
@@ -17,7 +24,8 @@ prove a change, say so instead of guessing.
   - reproduce the bug, fix it, and run the same reproduction again
   - add one focused test that fails without the fix
 - **Web:** run a dev server or a preview build, and use the T3 preview
-  browser (outside T3, `playwright-cli`):
+  browser. Use `playwright-cli` only outside T3, or when the preview tools
+  are missing:
   - `preview_open` and `preview_navigate` to load the page
   - `preview_act` to click and type
   - `preview_snapshot` to look at it
@@ -48,8 +56,10 @@ Bugs hide in the states nobody opens:
 - light and dark
 - motion: typing, scrolling, animations
 
-Measurements on shared hardware (GPU, Neural Engine) run one at a time, under
-the lock in `fan-out`'s **Shared resources** rules.
+Measurements on shared hardware (GPU, Neural Engine) run one at a time. Use
+the repo's `scripts/lock.sh` if it has one, otherwise the lock in `fan-out`'s
+**Shared resources** rules. Numbers taken while other agents load the
+machine aren't proof.
 
 ## Respect the user's setup
 
