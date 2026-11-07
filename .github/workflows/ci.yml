@@ -28,3 +28,7 @@ jobs:
           for p in plugins/*/; do claude plugin validate "$p"; done
       - name: ShellCheck
         run: git ls-files -z '*.sh' | xargs -0 shellcheck
+      - name: build-verification-environment tests
+        # Offline: locks live in a temp dir, and a throwaway repo with a
+        # worktree checks that both share one lock.
+        run: tests/build-verification-environment.sh
