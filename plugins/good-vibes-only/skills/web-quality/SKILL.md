@@ -44,8 +44,8 @@ If a Search Console MCP is there, read from it; change things only when asked.
 
 ## Visual pass
 
-In the T3 preview browser, check every page at 390, 768 and 1280 px
-(`preview_resize`), in light and dark (`preview_set_appearance`). Scroll each
+With the `verify` skill's web tools, check every page at 390, 768 and
+1280 px, in light and dark. Scroll each
 page fully and use the main interactions. Look for:
 - overflow
 - cut-off text
@@ -53,8 +53,6 @@ page fully and use the main interactions. Look for:
 - a missing `cursor: pointer`
 - small tap targets
 - media that doesn't load
-
-Close the tabs you opened.
 
 ## Fix and report
 

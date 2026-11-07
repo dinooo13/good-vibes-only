@@ -42,8 +42,8 @@ already said go.
    - **Give it** the rubric, the references, the capture plan, the commit to
      judge, and the round 1 critique for calibration.
    - **Never tell it** the target or what you hope for.
-   - **The task text says** to make its own captures (preview browser, device
-     tools, or the built app), to write only under `hill-climb/critiques/` and
+   - **The task text says** to make its own captures with the `verify`
+     skill's tools, to write only under `hill-climb/critiques/` and
      `hill-climb/captures/`, and never to touch the source.
    - **It returns:**
      - the score per axis, with the change since the last round
@@ -57,14 +57,8 @@ already said go.
    Sonnet for clear fixes, Opus `high` for judgement. Give them worktrees or
    disjoint files. Integrate, build, and commit a snapshot for the next critic.
 4. **Measure one at a time.** Measurements on shared hardware (GPU, Neural
-   Engine, a simulator) need a lock. Put these rules in each implementer's
-   task text:
-   - Take the lock with `mkdir /tmp/<repo>-<resource>.lock`, and put an
-     `owner` file inside it.
-   - If it's taken, wait with one background `until mkdir …; do sleep 30; done`.
-   - Release it with `rm -r`, and never break someone else's lock.
-
-   Fix the real defect, not the metric. If the headline drops, fix that
+   Engine, a simulator) use the lock from `fan-out`; put it in each
+   implementer's task text. Fix the real defect, not the metric. If the headline drops, fix that
    first.
 
 ## Stopping

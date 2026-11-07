@@ -23,10 +23,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 
 ## Steps
 
-1. **Prove it.** Branch off the default branch if you're on it. Run what CI
-   runs. For UI, look at it running: the T3 preview browser for the web, the
-   T3 device tools for simulators, the built app for macOS. Mocked tests
-   don't prove the user experience. If you can't prove it, say so.
+1. **Prove it.** Branch off the default branch if you're on it, then prove
+   the change with the `verify` skill. If you can't prove it, say so.
 2. **File the PR.** Update the PR if the branch already has one. Before
    filing:
    - Rebase onto `origin/<default>`.
@@ -43,7 +41,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    `gh pr checks --watch`. Children never watch; the owning thread does. On
    each wake, act only on things newer than your latest push:
    - Check every bot finding against the code, and fix the real ones.
-   - Answer false positives with a written reason. Resolving a thread needs
+   - Answer false positives with a written reason, following `pr-comments`.
+     Resolving a thread needs
      `gh api graphql` with `resolveReviewThread`.
    - Rerun a flaky infrastructure failure once
      (`gh run rerun <id> --failed`).
@@ -76,16 +75,12 @@ At the end, propose a section with the lines `Verify`, `Merge`,
      background `sleep 30; gh run list --commit <sha>` and
      `t3_background_wait`. Wait for the run with one background
      `gh run watch <id> --exit-status`, then `t3_background_wait`.
-   - Check the change live, in the preview browser or with curl. Look at the
-     changed thing, not just at a 200.
+   - Check the change live, the way `verify` checks production.
 6. **Clean up.**
-   - Delete the remote branch unless the repo does that itself. First check
-     that `origin/<branch>` still equals the PR head, so nothing pushed after
-     the merge is lost.
-   - Delete the local branch only if no worktree has it checked out. Your own
-     T3 worktree usually does, so leave it for `tidy-repos`. After a squash or
-     rebase merge, `-D` is fine once GitHub shows the PR merged and the local
-     tip equals its head.
+   - Delete the branch on the remote and locally under `tidy-repos`'
+     "Merged means" rule, unless the repo deletes it itself. Skip a local
+     branch that a worktree has checked out (usually your own T3 worktree);
+     `tidy-repos` cleans it up later.
    - T3 settles the thread when its PR merges. If the user asked for it and the
      thread is still open, call `t3_thread_organize` with `settle`.
 

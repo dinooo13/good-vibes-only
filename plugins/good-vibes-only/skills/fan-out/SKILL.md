@@ -40,7 +40,8 @@ their decisions on as "decided, do not reopen".
 
 ## 3. Implement
 
-Use one worktree per package.
+Use one worktree per package. Tell every child to prove its work with the
+`verify` skill.
 
 - **Short work:** `delegate_task` (`role: "implementation"`,
   `isolation: "worktree"`). The worktree starts from your own commit, so first
@@ -81,7 +82,7 @@ once, from the final main.
 
 Keep a table (issue, owner, branch, PR, state) and answer status questions
 from it. Follow notifications instead of polling. Cancel children you no
-longer need with `task_cancel`. At the end, comment on partly done issues and
+longer need with `task_cancel`. At the end, comment on partly done issues with `pr-comments` and
 list the follow-ups. File them only if the user asks.
 
 ## Plan-only

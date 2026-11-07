@@ -29,9 +29,8 @@ for. A README that suddenly feels unfamiliar is a failed rework.
 
 **Screenshots and GIFs:** capture the real app with seeded, believable demo
 data, local to the audience and never "Test 1". Never show the user's real
-accounts or data; check every frame before you commit it. Use the T3 preview browser for the
-web (`preview_resize`, `preview_set_appearance`), the T3 device tools for
-simulators, and the built app for macOS. Convert GIFs with `ffmpeg`, keep
+accounts or data; check every frame before you commit it. Capture with the `verify` skill's tools
+for the platform. Convert GIFs with `ffmpeg`, keep
 them under about 5 MB, and show a sped-up typical day rather than a feature
 tour.
 

@@ -5,10 +5,10 @@ Claude Code plugins that give your agents good vibes. Useful skills that take ca
 ```
 /plugin marketplace add dinooo13/good-vibes-only
 /plugin install usage-limits@good-vibes-only
-/plugin install ship-it@good-vibes-only
+/plugin install good-vibes-only@good-vibes-only
 ```
 
-Install the ones you want: `usage-limits`, `ship-it`, `review-loop`, `fan-out`, `handoff`, `hill-climb`, `product-readme`, `web-quality`, `project-digest`, `tidy-repos`.
+Two plugins: `usage-limits` keeps long runs alive, and `good-vibes-only` bundles the workflow skills below. They're bundled because they lean on each other: ship-it proves changes with verify and answers bots with pr-comments, and fan-out hands every PR to review-loop and ship-it. Claude picks them up from what you say, or you call them directly, for example `/good-vibes-only:ship-it`.
 
 The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code). They use its tools for threads, delegated agents, PR watching, the preview browser and scheduled tasks. Elsewhere they fall back to the harness's own subagent and browser tools.
 
@@ -25,6 +25,8 @@ The workflow skills are made for [T3 Code](https://github.com/pingdotgg/t3code).
 | [web-quality](#web-quality) | "check the core web vitals" | Lighthouse, SEO and GEO, and a visual pass, before and after |
 | [project-digest](#project-digest) | "what needs me?" | Who's waiting on you, what's broken, what's ready to merge |
 | [tidy-repos](#tidy-repos) | "clean up branches" | Merged branches and clean worktrees go; stale work gets listed |
+| [verify](#verify) | "verify yourself" | Proof you can see: preview browser, simulator, the real app, the hard states |
+| [pr-comments](#pr-comments) | "draft a reply" | Short comments in your voice, drafts before people see them, a note on bot replies |
 
 ### usage-limits
 
@@ -89,4 +91,12 @@ The morning read: new issues and comments from real people (first-timers flagged
 
 ### tidy-repos
 
-Branches whose PRs merged, worktrees that are clean and merged, stale refs: gone. Squash merges are detected through GitHub, so nothing is guessed from `git branch --merged`. Anything unmerged or with changes is listed for you, never deleted. It also never touches a worktree an active T3 thread is using.
+Branches whose PRs merged, worktrees that are clean and merged, stale refs: gone. Squash merges are detected through GitHub, so nothing is guessed from `git branch --merged`. Anything unmerged or with changes is listed for you, never deleted. It also never touches a worktree that an unsettled T3 thread still owns, or one holding ignored files like `.env`.
+
+### verify
+
+Green mocked tests aren't proof. verify picks the way to see the change working: the T3 preview browser for the web, the device tools for simulators, the built app for macOS, curl and logs for servers. It also opens the states that hide bugs, like everything switched on, the longest text and the phone width. It never kills the copy of the app you're using.
+
+### pr-comments
+
+Comments that sound like you on a good day: two or three sentences, the point first, friendly to people and no filler. Anything a person will read is shown to you as a draft first. Replies to review bots go out directly, with a note that an agent wrote them.
