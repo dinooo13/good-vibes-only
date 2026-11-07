@@ -63,7 +63,8 @@ check "token is not in curl argv" '! grep -q TESTTOKEN "$T/curl-argv"' "$(cat "$
 check "token reaches curl via stdin config" 'grep -q "^header = \"Authorization: Bearer $TOKEN\"$" "$T/curl-stdin"'
 check "token is not in the output" '! grep -q TESTTOKEN <<<"$out"'
 check "token is not in the cache" '! grep -rq TESTTOKEN "$CLAUDE_CONFIG_DIR/usage-limits"'
-check "cache file is private" '[ "$(stat -f %Lp "$CLAUDE_CONFIG_DIR/usage-limits/usage-cache.json" 2>/dev/null || stat -c %a "$CLAUDE_CONFIG_DIR/usage-limits/usage-cache.json")" = 600 ]'
+# GNU first: GNU stat -f means --file-system and prints before failing; BSD stat -c prints nothing.
+check "cache file is private" '[ "$(stat -c %a "$CLAUDE_CONFIG_DIR/usage-limits/usage-cache.json" 2>/dev/null || stat -f %Lp "$CLAUDE_CONFIG_DIR/usage-limits/usage-cache.json")" = 600 ]'
 
 "$S/usage.sh" --brief >/dev/null
 check "second call within 60s is served from the cache" '[ "$(wc -l <"$T/curl-calls" | tr -d " ")" = 1 ]'
