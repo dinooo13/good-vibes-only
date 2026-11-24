@@ -37,7 +37,10 @@ In T3, start each thread with `t3_thread_launch`:
 - `delegatedFrom` set to this thread
 - a brief written with the `handoff` skill
 
-Outside T3, use one worktree subagent per issue instead.
+Outside T3, use one worktree subagent per issue instead. It plans and
+implements itself, and its ship-it opens the PR without the review, since a
+subagent can't start reviewers. When it reports back, run `review-loop` and
+the rest of `ship-it` on that PR from the main session.
 
 Each brief holds:
 - the issue, "Done when", and the binding docs
@@ -65,7 +68,7 @@ branch.
    (`role: "implementation"`). It works in this thread's worktree. Give it the
    approved plan and the decisions. For a big plan, use several implementers
    one after the other.
-4. **Land.** Run `ship-it` on your own PR. It proves the work with `verify`
+4. **Land.** Run `ship-it` on this thread's branch. It proves the work with `verify`
    and reviews it with `review-loop` before filing. This thread owns and watches the PR. Merge only if
    merges are allowed. When the coordinator says several PRs land, skip
    ship-it's install, deploy and live check.

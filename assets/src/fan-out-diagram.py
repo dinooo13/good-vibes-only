@@ -73,5 +73,5 @@ def svg(c):
 
 root = Path(__file__).resolve().parents[2]
 for name, colors in THEMES.items():
-    (root / "assets" / f"fan-out-{name}.svg").write_text(svg(colors))
+    (root / "assets" / f"fan-out-{name}.svg").write_text(svg(colors), encoding="utf-8")
     print(f"assets/fan-out-{name}.svg")

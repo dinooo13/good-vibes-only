@@ -35,8 +35,9 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    - Rebase onto `origin/<default>`.
    - Follow the repo's title style.
    - Write the description problem first, in the user's words, then the fix in
-     two or three sentences, how you proved it, the review-loop table,
-     `Closes #N`, and the model/harness line.
+     two or three sentences, how you proved it, the review-loop table if a
+     review ran and the description doesn't have it yet, `Closes #N`, and the
+     model/harness line.
    - Check the PR for secrets.
 
    Open a real PR, not a draft. Register it with `link_pull_request`.
@@ -44,8 +45,10 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    4 already passes, go straight to step 4. On a head you just pushed, the
    gate needs finished check runs; no checks reported yet is not green. Otherwise call
    `watch_pull_request` and end your turn. Don't use sleep loops or
-   `gh pr checks --watch`. Children never watch; the owning thread does. On
-   each wake, act only on things newer than your latest push:
+   `gh pr checks --watch`. Children never watch; the owning thread does.
+   Outside T3, wait with one background `gh pr checks <n> --watch` instead,
+   and read the reviews and comments when it exits. On each wake, act only on
+   things newer than your latest push:
    - Check every bot finding against the code, and fix the real ones.
    - Answer false positives with a written reason, following `pr-comments`.
      Resolving a thread needs
@@ -58,8 +61,10 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    for a fresh review, or when your fixes went beyond small bot findings.
 4. **Merge gate.** On the latest head, all of these must hold:
    - your proof covers the diff
-   - review-loop approved the diff, unless it was skipped as step 1 allows or
-     you started at step 3
+   - the last review-loop that ran ended Done (approved, or only nits left).
+     Later rebases and small bot fixes don't need a new round. No review is
+     needed only when step 1 allowed skipping it, or you started at step 3
+     and made only small bot fixes.
    - required checks are green
    - the bots the repo waits on, if it runs any (such as Greptile or
      Macroscope), have reviewed it. CodeRabbit never gates.
