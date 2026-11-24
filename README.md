@@ -62,19 +62,19 @@ Click a skill for what it does in detail.
 
 ## How they team up
 
-The skills call each other, which is why they come as one plugin. ship-it proves changes with verify, reviews them with review-loop and answers bots with pr-comments. verify runs the scripts that build-verification-environment set up. fan-out writes its briefs with handoff and lands every issue with ship-it:
+The skills call each other, which is why they come as one plugin. ship-it proves changes with verify, reviews them with review-loop and answers bots with pr-comments. verify runs the scripts that build-verification-environment set up. fan-out writes its briefs with handoff and lands every issue with ship-it, which runs verify, review-loop and the PR in one go:
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/fan-out-dark.svg">
-    <img src="assets/fan-out-light.svg" width="900" alt="fan-out: a request for issues 36 to 38 becomes three issue threads. Each runs plan, your go, implement, verify, review-loop and ship-it until merged. The three plans are approved in one place, and each issue ends as its own PR.">
+    <img src="assets/fan-out-light.svg" width="900" alt="fan-out: a request for issues 36 to 38 becomes three issue threads. Each runs plan, your go and implement, then ship-it, which runs verify, review-loop and the PR until it merges. The three plans are approved in one place, and each issue ends as its own PR.">
   </picture>
 </p>
 
 ## FAQ
 
 **Do I need T3 Code?**
-No. Every skill runs in plain Claude Code. Without T3, verify drives the browser with `playwright-cli` and fan-out runs a worktree subagent per issue.
+No. Every skill runs in plain Claude Code. Without T3, verify drives the browser with `playwright-cli`, review-loop's reviewers run as plain subagents, and fan-out runs a worktree subagent per issue.
 
 **Will it merge or post anything without asking?**
 Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and review-loop approved it; say "skip the review" for a change that doesn't need one. "PR" alone stops at the merge gate. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
