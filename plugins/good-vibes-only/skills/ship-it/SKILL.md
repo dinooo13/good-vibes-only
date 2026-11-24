@@ -7,10 +7,13 @@ description: Take a change all the way to done. Prove it, review it with review-
 
 You own the change until it is merged and running where it belongs. Start at
 the step that fits the request: "install the latest main" with nothing to PR
-starts at step 5, and "babysit the PR" starts at step 3.
+starts at step 5, and "babysit the PR" starts at step 3. "Ship it" on a PR
+that `almost-ship-it` handed over starts at step 4 and keeps its proof and
+review while the head is unchanged.
 
 "Ship it", "merge", "merge when green" and "babysit and merge" allow a merge.
-"PR" and "babysit the PR" alone stop at the merge gate.
+"PR" and "babysit the PR" alone stop at the merge gate. For the whole flow
+without the merge, use `almost-ship-it`.
 
 ## Project rules
 

@@ -1,6 +1,6 @@
 # Good Vibes Only ✌️
 
-Twelve Claude Code skills that take your agents' work from "done, I think" to merged, deployed and checked live. You stop babysitting and start reviewing plans.
+Thirteen Claude Code skills that take your agents' work from "done, I think" to merged, deployed and checked live. You stop babysitting and start reviewing plans.
 
 [![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97757)](#install)
 [![Best in T3 Code](https://img.shields.io/badge/best_in-T3_Code-6e40c9)](https://github.com/pingdotgg/t3code)
@@ -45,6 +45,7 @@ Click a skill for what it does in detail.
 | --- | --- | --- |
 | **Land changes** | | |
 | [ship-it](plugins/good-vibes-only/skills/ship-it) | "ship it", "merge when green" | Proof, a review loop, PR, babysitting, rebase, merge, deploy, a live check, cleanup |
+| [almost-ship-it](plugins/good-vibes-only/skills/almost-ship-it) | "almost ship it", "ship it but don't merge" | All of ship-it up to the merge, then a PR ready for you to merge |
 | [review-loop](plugins/good-vibes-only/skills/review-loop) | "review loop", "council" | Fresh reviewers, round after round, until one approves |
 | [verify](plugins/good-vibes-only/skills/verify) | "verify yourself" | Proof you can see: browser, simulator, the real app, the hard states |
 | [build-verification-environment](plugins/good-vibes-only/skills/build-verification-environment) | "build a verification environment" | Build script, demo mode, scripted screenshots and benchmarks, so agents check their own work |
@@ -77,7 +78,7 @@ The skills call each other, which is why they come as one plugin. ship-it proves
 No. Every skill runs in plain Claude Code and falls back where T3 is missing: verify drives the browser with `playwright-cli`, review-loop's reviewers run as plain subagents, ship-it waits on CI with `gh pr checks --watch`, and fan-out runs a worktree subagent per issue, then reviews and lands each PR from your session. Councils need T3 for the non-Claude reviewers.
 
 **Will it merge or post anything without asking?**
-Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "PR" alone stops at the merge gate. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
+Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "Almost ship it" does all of that and stops with the PR ready for you to merge. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
 
 **Which models does it use?**
 The newest of each family, never hardcoded IDs: Opus at xhigh for reviews, and Fable to plan and Opus to build in fan-out. Name another model and it wins.
@@ -87,7 +88,7 @@ The newest of each family, never hardcoded IDs: Opus at xhigh for reviews, and F
 
 ## Credits
 
-Several skills borrow ideas from Theo's [tstack](https://github.com/t3dotgg/tstack): review-loop from `council` and `sol-loop`, ship-it from `babysit-pr` and `full-send`, and pr-comments from `leaving-pr-comments`.
+Several skills borrow ideas from Theo's [tstack](https://github.com/t3dotgg/tstack): review-loop from `council` and `sol-loop`, ship-it from `babysit-pr` and `full-send`, almost-ship-it from `full-stop`, and pr-comments from `leaving-pr-comments`.
 
 Want to change a skill? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
