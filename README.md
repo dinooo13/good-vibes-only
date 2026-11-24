@@ -43,7 +43,7 @@ The skills work in any Claude Code session, and they're at their best in [T3 Cod
 | [handoff](#handoff) | "write a handoff" | A brief that lets a new thread carry on without your history |
 | [hill-climb](#hill-climb) | "keep iterating until the reviewer gives at least 9" | Critic rounds with a fixed rubric until the score reaches the target |
 | **Keep tabs** | | |
-| [project-digest](#project-digest) | "anything I need to look at?" | Who's waiting on you, what's broken, what's ready to merge |
+| [project-digest](#project-digest) | "anything I need to look at?" | Who's waiting on you, where every open issue stands, what to start next |
 | [tidy-repos](#tidy-repos) | "clean up branches" | Merged branches and clean worktrees go; stale work gets listed |
 | **Polish the product** | | |
 | [product-readme](#product-readme) | "make the README sell it" | A README that sells: hero, real screenshots, short install |
@@ -106,7 +106,7 @@ Give it a target ("at least 9 out of 10") and it brings in a fresh, independent 
 
 ### project-digest
 
-The morning read: new issues and comments from real people (first-timers flagged), PRs that are ready, failing or behind, red CI on main, your PRs in other people's repos, and unreleased commits. If nothing needs you, it says so in one line. It's read only, so it's safe to run on a schedule.
+The morning read. Everyone waiting on you, however long ago they asked (first-timers flagged), every open issue per repo with its status (ready to start, blocked by #N, PR in review, needs your yes) and how they depend on each other, PRs that are ready, failing or behind, red CI on any workflow on main, your PRs in other people's repos, and unreleased commits. It ends with up to three things to kick off next, as skill calls like `fan-out app#41`. In T3 Code it shows all of this as a page in the thread. Repos you list in `~/.config/good-vibes-only/digest.json` (`{ "ignore": ["owner/repo"] }`) are skipped, like a demo repo for a workshop. It's read only, so it's safe to run on a schedule.
 
 ### tidy-repos
 

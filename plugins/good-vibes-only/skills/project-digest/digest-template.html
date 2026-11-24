@@ -1,0 +1,174 @@
+<!doctype html>
+<!--
+  project-digest page for T3 Code's html_render. Keep the styles as they are and
+  replace every sample row below; none of it is real. Leave out sections with
+  nothing in them. Only T3 theme variables, no page background or side padding.
+
+  Pills, by status:
+    p-reply    Reply / Unanswered             (amber)
+    p-review   PR #N in review / green, draft / Approve CI · review   (blue)
+    p-start    Ready to start / Ready to merge (green)
+    p-decide   Needs your yes / Your yes or no (neutral)
+    p-blocked  Blocked by #N / Waiting / Behind (muted)
+    p-fail     Red CI / Failing / Conflicts   (red)
+  Tag after a title: <span class="new">1ST-TIME</span> or <span class="new">NEW</span>.
+-->
+<html><head><meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font-sans); color: var(--foreground); line-height: 1.45; }
+  a { color: inherit; text-decoration: none; }
+  a:hover .t { text-decoration: underline; }
+  code { font-family: var(--font-mono); font-size: .92em; }
+  .wrap { display: flex; flex-direction: column; gap: 22px; }
+  .meta { font-size: 12px; color: var(--muted-foreground); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .stat .n { font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12px; color: var(--muted-foreground); }
+  .stat.hot .n { color: var(--warning); }
+  .stat.bad .n { color: var(--destructive); }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted-foreground); margin: 0 0 8px; font-weight: 600; }
+  .list { display: flex; flex-direction: column; gap: 6px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: start;
+         background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; }
+  .row .t { font-weight: 550; }
+  .row .ref { font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); margin-right: 6px; }
+  .row .d { grid-column: 1 / -1; font-size: 13px; color: var(--muted-foreground); }
+  .pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; border: 1px solid transparent; }
+  .p-reply { background: var(--warning-surface, var(--secondary)); color: var(--warning); border-color: color-mix(in srgb, var(--warning) 35%, transparent); }
+  .p-decide { background: var(--secondary); color: var(--foreground); border-color: var(--border); }
+  .p-start { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); border-color: color-mix(in srgb, var(--success) 35%, transparent); }
+  .p-review { background: color-mix(in srgb, var(--info) 14%, transparent); color: var(--info); border-color: color-mix(in srgb, var(--info) 35%, transparent); }
+  .p-blocked { background: var(--secondary); color: var(--muted-foreground); border-color: var(--border); }
+  .p-fail { background: var(--destructive-surface, var(--secondary)); color: var(--destructive); border-color: color-mix(in srgb, var(--destructive) 35%, transparent); }
+  .new { font-size: 10px; font-weight: 700; color: var(--warning); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; margin-left: 6px; vertical-align: 1px; }
+  .repo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 6px; }
+  .repo b { font-size: 15px; }
+  .repo span { font-size: 12px; color: var(--muted-foreground); text-align: right; }
+  .gap { height: 16px; }
+  .chain { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted-foreground);
+           background: var(--code-background, var(--secondary)); border-radius: var(--radius); padding: 10px 14px; margin-top: 6px; }
+  .chain code { color: var(--foreground); background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; }
+  .chain .arr { opacity: .6; }
+  .chain .aside { margin-left: auto; }
+  .steps { counter-reset: s; display: flex; flex-direction: column; gap: 6px; }
+  .step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start;
+          background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; }
+  .step::before { counter-increment: s; content: counter(s); width: 24px; height: 24px; border-radius: 50%;
+          background: var(--primary); color: var(--primary-foreground); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .step .cmd { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; }
+  .step .why { font-size: 13px; color: var(--muted-foreground); }
+  .quiet { font-size: 12px; color: var(--muted-foreground); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .quiet i { font-style: normal; color: var(--success); }
+  @media (max-width: 520px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style></head>
+<body>
+<div class="wrap">
+
+  <!-- login · active repos (ignored ones not counted) · when the run started -->
+  <div class="meta">octocat · 4 active repos · Tue 24 Nov 2026, 08:00 UTC</div>
+
+  <!-- Use "hot" when unanswered > 0, "bad" when a default branch is red. -->
+  <div class="stats">
+    <div class="stat"><div class="n">6</div><div class="l">open issues</div></div>
+    <div class="stat hot"><div class="n">1</div><div class="l">unanswered, 1st-timer</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">PRs waiting on you</div></div>
+    <div class="stat bad"><div class="n">3/4</div><div class="l">main branches green</div></div>
+  </div>
+
+  <!-- Needs you: people waiting (however old), PRs from others, decisions, red CI, failing PRs. -->
+  <section>
+    <h2>Needs you</h2>
+    <div class="list">
+      <a class="row" href="https://github.com/octocat/app/issues/42">
+        <div><span class="ref">app#42</span><span class="t">Export to CSV</span><span class="new">1ST-TIME</span></div>
+        <span class="pill p-reply">Reply</span>
+        <div class="d">someone, Nov 20 · 0 comments. Who asked for what, in one line.</div>
+      </a>
+      <a class="row" href="https://github.com/octocat/app/pull/44">
+        <div><span class="ref">app#44</span><span class="t">Fix date parsing in imports</span></div>
+        <span class="pill p-review">Approve CI · review</span>
+        <div class="d">contributor, Nov 18 · closes #40 · 3 files, +42 · no checks have run, no reviews yet.</div>
+      </a>
+      <a class="row" href="https://github.com/octocat/site/actions/runs/1">
+        <div><span class="ref">site</span><span class="t">Deploy failed on main</span></div>
+        <span class="pill p-fail">Red CI</span>
+        <div class="d">Workflow “Deploy”, Nov 23 · the other 2 workflows are green.</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- One block per repo with open issues. Header: name, then "N open · release info". -->
+  <section>
+    <h2>Open issues by repo</h2>
+
+    <div class="repo"><b>app</b><span>4 open · v1.2.0 + 3 unreleased commits</span></div>
+    <div class="list">
+      <a class="row" href="https://github.com/octocat/app/issues/41">
+        <div><span class="ref">#41</span><span class="t">Settings screen</span></div>
+        <span class="pill p-start">Ready to start</span>
+      </a>
+      <a class="row" href="https://github.com/octocat/app/issues/40">
+        <div><span class="ref">#40</span><span class="t">Imports drop the time zone</span></div>
+        <span class="pill p-review">PR #44 in review</span>
+      </a>
+      <a class="row" href="https://github.com/octocat/app/issues/43">
+        <div><span class="ref">#43</span><span class="t">Sync settings across devices</span></div>
+        <span class="pill p-blocked">Blocked by #41</span>
+      </a>
+      <a class="row" href="https://github.com/octocat/app/issues/42">
+        <div><span class="ref">#42</span><span class="t">Export to CSV</span><span class="new">1ST-TIME</span></div>
+        <span class="pill p-reply">Unanswered</span>
+      </a>
+    </div>
+    <!-- Dependency chain, only when issues depend on each other. -->
+    <div class="chain"><code>#41</code><span class="arr">→</span><code>#43</code><span class="aside">#40 and #42 are independent</span></div>
+
+    <div class="gap"></div>
+    <div class="repo"><b>site</b><span>2 open</span></div>
+    <div class="list">
+      <a class="row" href="https://github.com/octocat/site/issues/7">
+        <div><span class="ref">#7</span><span class="t">Drop the old analytics script</span></div>
+        <span class="pill p-decide">Needs your yes</span>
+      </a>
+      <a class="row" href="https://github.com/octocat/site/issues/8">
+        <div><span class="ref">#8</span><span class="t">Dark mode for the docs</span></div>
+        <span class="pill p-review">PR #9 green, draft</span>
+      </a>
+    </div>
+
+    <div class="gap"></div>
+    <!-- Repos with no open issues and green CI. -->
+    <div class="quiet"><span><i>●</i> cli</span><span><i>●</i> dotfiles</span><span>no open issues, main green</span></div>
+  </section>
+
+  <!-- The user's PRs, here and in other people's repos. Leave out when there are none. -->
+  <section>
+    <h2>Your PRs</h2>
+    <div class="list">
+      <a class="row" href="https://github.com/someone-else/lib/pull/12">
+        <div><span class="ref">someone-else/lib#12</span><span class="t">Add a timeout option</span></div>
+        <span class="pill p-blocked">Behind</span>
+        <div class="d">Approved Nov 21 · 4 commits behind main.</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- At most three, ranked: unblocks the most, then people waiting, then nearly-done PRs. -->
+  <section>
+    <h2>Kick off next</h2>
+    <div class="steps">
+      <div class="step"><div><div class="cmd">fan-out app#41</div><div class="why">Unblocks #43.</div></div></div>
+      <div class="step"><div><div class="cmd">pr-comments app#42</div><div class="why">A first-time reporter has waited 4 days. Even “planned, not yet” helps.</div></div></div>
+      <div class="step"><div><div class="cmd">ship-it site#9</div><div class="why">Green and nearly done; mark it ready and merge.</div></div></div>
+    </div>
+  </section>
+
+  <!-- Only when digest.json ignores repos. -->
+  <div class="quiet">Ignored: workshop-demo</div>
+
+</div>
+</body></html>
