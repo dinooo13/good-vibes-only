@@ -7,6 +7,15 @@ Twelve Claude Code skills that take care of the annoying parts of agent work, fr
 [![CI](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml/badge.svg)](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-2ea043)](LICENSE)
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/project-digest-dark.png">
+    <img src="assets/project-digest-light.png" width="680" alt="The project-digest page in T3 Code, with made-up demo repos: a first-time reporter waiting for a reply, a contributor's PR waiting for review, a failed deploy, the open issues of one repo with their status and dependencies, and three skills to run next.">
+  </picture>
+  <br>
+  <sub>The morning digest in T3 Code: who's waiting on you, where every issue stands, and which skill to run next. Demo data.</sub>
+</p>
+
 ## Install
 
 In Claude Code, add the marketplace and install the plugin:
@@ -120,10 +129,27 @@ READMEs that sell the product to the people who'll use it: a one-line value, a h
 
 Lighthouse on the production build, a median of three runs per page and configuration, the pages that matter, SEO and GEO done properly, and a visual pass at phone, tablet and desktop widths in light and dark. You get a before-and-after table and an honest note on where chasing the last point stopped being worth it.
 
+## FAQ
+
+**Do I need T3 Code?**
+No. Every skill runs in a plain Claude Code session. T3 adds threads, delegated agents on other providers, PR watching, the preview browser and device tools, so that's where the skills do the most for you.
+
+**Will it merge or post things without asking?**
+Only what you asked for. "Ship it" and "merge when green" allow a merge; "PR" or "babysit the PR" stops at the merge gate. Comments that a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme changes the repo's description only after your OK.
+
+**Which models does it use?**
+The newest ones it can find, never hardcoded IDs: Opus at xhigh for reviews, Fable to plan and Opus to implement in fan-out. Name another model and it wins. A council adds GPT Sol and a third provider through OpenCode, and says so if one can't run.
+
+**What can verify check?**
+Web apps in a browser, iOS and Android apps in the simulator, macOS apps, and servers through curl and their logs. What it couldn't check, it tells you.
+
+**How do I update?**
+`claude plugin marketplace update good-vibes-only`, then `claude plugin update good-vibes-only@good-vibes-only`.
+
 ## Credits
 
 Several skills borrow ideas from Theo's [tstack](https://github.com/t3dotgg/tstack): review-loop from `council` and `sol-loop`, ship-it from `babysit-pr` and `full-send`, and pr-comments from `leaving-pr-comments`.
 
-Before a push, run `scripts/check-plugins.sh` (manifests and skill frontmatter) and `tests/build-verification-environment.sh` (offline tests for `lock.sh`). CI runs both, plus ShellCheck and Claude Code's plugin validator.
+Want to change a skill? See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 [MIT](LICENSE) © Fabian Meyer
