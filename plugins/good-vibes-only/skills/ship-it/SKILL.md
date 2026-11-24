@@ -1,6 +1,6 @@
 ---
 name: ship-it
-description: Take a change all the way to done. Prove it, open or update the PR, babysit CI and review bots, rebase when behind, merge, pull main, install or deploy, check it live, clean up. Use when the user says "ship it", "PR and merge", "babysit the PR", "merge when green", "install the latest main", or "make sure prod deployed clean".
+description: Take a change all the way to done. Prove it, review it with review-loop, open or update the PR, babysit CI and review bots, rebase when behind, merge, pull main, install or deploy, check it live, clean up. Use when the user says "ship it", "PR and merge", "babysit the PR", "merge when green", "install the latest main", or "make sure prod deployed clean".
 ---
 
 # Ship it
@@ -24,15 +24,19 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 
 ## Steps
 
-1. **Prove it.** Branch off the default branch if you're on it, then prove
-   the change with the `verify` skill. If you can't prove it, say so.
+1. **Prove and review it.** Branch off the default branch if you're on it,
+   then prove the change with the `verify` skill. If you can't prove it, say
+   so. Then run `review-loop` on the branch, with its default reviewer unless
+   the user named one or asked for a council. If its fixes change behaviour,
+   prove the change again. Skip the review only when the user says so, or
+   when a review loop in this thread already approved this exact diff.
 2. **File the PR.** Update the PR if the branch already has one. Before
    filing:
    - Rebase onto `origin/<default>`.
    - Follow the repo's title style.
    - Write the description problem first, in the user's words, then the fix in
-     two or three sentences, how you proved it, `Closes #N`, and the
-     model/harness line.
+     two or three sentences, how you proved it, the review-loop table,
+     `Closes #N`, and the model/harness line.
    - Check the PR for secrets.
 
    Open a real PR, not a draft. Register it with `link_pull_request`.
@@ -50,9 +54,12 @@ At the end, propose a section with the lines `Verify`, `Merge`,
      (`gh run rerun <id> --failed`).
    - Decline scope creep with a reason, and list it as a follow-up.
 
-   If the user asked for a fresh review, run `review-loop` first.
+   Starting here skips step 1's review. Run `review-loop` when the user asks
+   for a fresh review, or when your fixes went beyond small bot findings.
 4. **Merge gate.** On the latest head, all of these must hold:
    - your proof covers the diff
+   - review-loop approved the diff, unless it was skipped as step 1 allows or
+     you started at step 3
    - required checks are green
    - the bots the repo waits on, if it runs any (such as Greptile or
      Macroscope), have reviewed it. CodeRabbit never gates.
@@ -91,6 +98,7 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 Report:
 - the PR and the merge commit
 - your proof
+- the review rounds and verdicts
 - what was installed or deployed, and what the live check showed
 - the decisions you made
 - the follow-ups you declined
