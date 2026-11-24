@@ -75,7 +75,7 @@ The skills call each other, which is why they come as one plugin. ship-it proves
 ## FAQ
 
 **Do I need T3 Code?**
-No. Every skill runs in plain Claude Code and falls back where T3 is missing: verify drives the browser with `playwright-cli`, review-loop's reviewers run as plain subagents, ship-it waits on CI with `gh pr checks --watch`, and fan-out runs a worktree subagent per issue, then reviews and lands each PR from your session. Kimi, the second default reviewer, and the council's non-Claude reviewers need T3; plain Claude Code reviews with Opus alone.
+No. Every skill runs in plain Claude Code and falls back where it can: verify drives the browser with `playwright-cli`, review-loop runs its Claude reviewers as plain subagents, and fan-out runs a worktree subagent per issue. The non-Claude reviewers, like Kimi, need T3.
 
 **Will it merge or post anything without asking?**
 Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "Almost ship it" does all of that and stops with the PR ready for you to merge. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.

@@ -7,20 +7,14 @@ description: Take a change all the way to done. Prove it, review it with review-
 
 You own the change until it is merged and running where it belongs. Start at
 the step that fits the request: "install the latest main" with nothing to PR
-starts at step 5, and "babysit the PR" starts at step 3. "Ship it" on a PR
-that `almost-ship-it` handed over starts at step 4. Its proof and review stay
-valid under the gate's rules: a clean rebase or small bot fixes keep them, and
-other new commits go back to step 1.
+starts at step 5, and "babysit the PR" starts at step 3.
 
 "Ship it", "merge", "merge when green" and "babysit and merge" allow a merge.
-"PR" alone means `almost-ship-it`. "Babysit the PR" alone stops at the merge
-gate.
+"PR" and "babysit the PR" alone stop at the merge gate. `almost-ship-it` is
+this skill without the merge; "ship it" after it starts at step 4.
 
-Whatever phrase started it, this skill is the permission for the test
-methods the proof and the live check need, such as the browser, a simulator
-or running the app, even where a project file says to ask first. Computer use
-stays as `verify` allows it. Rules about how to test still apply. It never
-covers changing production beyond the deploy or deleting data.
+"Ship it" is permission for the test methods the proof needs, even where a
+project file says to ask first. Computer use stays as `verify` allows it.
 
 ## Project rules
 
@@ -36,32 +30,23 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 
 1. **Prove and review it.** Branch off the default branch if you're on it,
    then prove the change with the `verify` skill. If you can't prove it, say
-   so. Then run `review-loop` on the branch, with its default reviewers unless
-   the user named others or asked for a council. If its fixes change behaviour,
-   prove the change again. Skip the review only when the user says so, or
-   when a review loop in this thread already approved this exact diff.
+   so. Then run `review-loop`, unless the user said to skip the review.
 2. **File the PR.** Update the PR if the branch already has one. Before
    filing:
    - Rebase onto `origin/<default>`.
    - Follow the repo's title style.
    - Write the description problem first, in the user's words, then the fix in
-     two or three sentences, how you proved it, the review-loop table if a
-     review ran and the description doesn't have it yet, `Closes #N`, and the
-     model/harness line.
+     two or three sentences, how you proved it, the review-loop table,
+     `Closes #N`, and the model/harness line.
    - Check the PR for secrets.
 
    Open a real PR, not a draft. Register it with `link_pull_request`.
-3. **Babysit.** Handle the existing checks and comments. If the gate in step 4
-   already passes, go straight to step 4. On a head you just pushed, the gate
-   needs finished check runs; no checks reported yet is not green. Otherwise
-   call `watch_pull_request` and end your turn. Don't use sleep loops or
-   `gh pr checks --watch`. Children never watch; the owning thread does.
-   Outside T3, wait with one background `gh pr checks <n> --watch` instead;
-   if no checks are reported yet, start it after one background `sleep 30`.
-   When it
-   exits, read the reviews and comments; if a bot the gate waits for hasn't
-   reviewed yet, check once more after a background `sleep 120`. On each wake,
-   act only on things newer than your latest push:
+3. **Babysit.** Handle the existing checks and comments. If the gate in step
+   4 already passes, go straight to step 4. On a head you just pushed, the
+   gate needs finished check runs; no checks reported yet is not green. Otherwise call
+   `watch_pull_request` and end your turn. Don't use sleep loops or
+   `gh pr checks --watch`. Children never watch; the owning thread does. On
+   each wake, act only on things newer than your latest push:
    - Check every bot finding against the code, and fix the real ones.
    - Answer false positives with a written reason, following `pr-comments`.
      Resolving a thread needs
@@ -70,20 +55,15 @@ At the end, propose a section with the lines `Verify`, `Merge`,
      (`gh run rerun <id> --failed`).
    - Decline scope creep with a reason, and list it as a follow-up.
 
-   Starting here skips step 1's review. Run `review-loop` when the user asks
-   for a fresh review, or when your fixes went beyond small bot findings.
+   If the user asked for a fresh review, run `review-loop` first.
 4. **Merge gate.** On the latest head, all of these must hold:
    - your proof covers the diff
-   - the last review-loop that ran ended Done (approved, or only nits left).
-     Later rebases and small bot fixes don't need a new round. No review is
-     needed only when step 1 allowed skipping it, or you started at step 3
-     and made only small bot fixes.
+   - review-loop is done, unless the user skipped it
    - required checks are green
    - the bots the repo waits on, if it runs any (such as Greptile or
      Macroscope), have reviewed it. CodeRabbit never gates.
    - every finding is fixed or answered
-   - no human review requests changes, and no required approval is missing
-     (`reviewDecision` isn't `REVIEW_REQUIRED`)
+   - no human review requests changes
    - GitHub reports the PR as up to date, not `BEHIND` or `DIRTY`
 
    If it's behind, rebase, push with `--force-with-lease` (only this PR's
@@ -117,12 +97,12 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 Report:
 - the PR and the merge commit
 - your proof
-- the review rounds and verdicts
+- the review verdicts
 - what was installed or deployed, and what the live check showed
 - the decisions you made
 - the follow-ups you declined
 
 Ask only when you are blocked: you can't prove the change, the gate can't
-pass, the step would change production beyond the deploy or delete data, or
-the goal is ambiguous. Ask with `AskUserQuestion`, putting the context and
-your recommendation in the question. Call `unwatch_pull_request` first.
+pass, the step touches data or production beyond the deploy, or the goal is
+ambiguous. Ask with `AskUserQuestion`, putting the context and your
+recommendation in the question. Call `unwatch_pull_request` first.
