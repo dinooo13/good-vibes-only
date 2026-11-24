@@ -32,7 +32,7 @@ They work in any Claude Code session and shine in [T3 Code](https://github.com/p
 ## Why you'll like it
 
 - **"Ship it" means shipped.** Proof, a fresh review, CI, review bots, rebases, the merge, the deploy and a look at it live. Not "PR opened, good luck".
-- **A reviewer with fresh eyes, every round.** No shared history, so nothing gets waved through. It keeps going until it approves, or brings three providers at once when you say "council".
+- **A fresh review before every PR.** ship-it hands each change to a reviewer with no shared history, so nothing gets waved through. It goes round after round until the reviewer approves, or brings three providers at once when you say "council".
 - **Five issues, one approval.** fan-out gives each issue its own thread and worktree. You approve all the plans in one place, and each comes back as its own merged PR.
 - **Proof you can see.** The change working in the browser, the simulator or the real app, including the long text, the phone width and dark mode. Not a wall of green mocked tests.
 - **Mornings start with a list.** Who's waiting on you, where every issue stands, and what to start next, like the page above.
@@ -77,7 +77,7 @@ The skills call each other, which is why they come as one plugin. ship-it proves
 No. Every skill runs in plain Claude Code. Without T3, verify drives the browser with `playwright-cli` and fan-out runs a worktree subagent per issue.
 
 **Will it merge or post anything without asking?**
-Only what you asked for. "Ship it" allows a merge; "PR" alone stops at the merge gate. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
+Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and review-loop approved it; say "skip the review" for a change that doesn't need one. "PR" alone stops at the merge gate. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
 
 **Which models does it use?**
 The newest of each family, never hardcoded IDs: Opus at xhigh for reviews, and Fable to plan and Opus to build in fan-out. Name another model and it wins.
