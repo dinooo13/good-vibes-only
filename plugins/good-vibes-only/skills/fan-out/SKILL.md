@@ -65,8 +65,8 @@ branch.
    (`role: "implementation"`). It works in this thread's worktree. Give it the
    approved plan and the decisions. For a big plan, use several implementers
    one after the other.
-4. **Land.** Prove the work with `verify`, then run `review-loop` and
-   `ship-it` on your own PR. This thread owns and watches the PR. Merge only if
+4. **Land.** Run `ship-it` on your own PR. It proves the work with `verify`
+   and reviews it with `review-loop` before filing. This thread owns and watches the PR. Merge only if
    merges are allowed. When the coordinator says several PRs land, skip
    ship-it's install, deploy and live check.
 5. **Report.** Send the coordinator the PR URL, the SHA and the state when the

@@ -31,7 +31,7 @@ They work in any Claude Code session and shine in [T3 Code](https://github.com/p
 
 ## Why you'll like it
 
-- **"Ship it" means shipped.** CI, review bots, rebases, the merge, the deploy and a look at it live. Not "PR opened, good luck".
+- **"Ship it" means shipped.** Proof, a fresh review, CI, review bots, rebases, the merge, the deploy and a look at it live. Not "PR opened, good luck".
 - **A reviewer with fresh eyes, every round.** No shared history, so nothing gets waved through. It keeps going until it approves, or brings three providers at once when you say "council".
 - **Five issues, one approval.** fan-out gives each issue its own thread and worktree. You approve all the plans in one place, and each comes back as its own merged PR.
 - **Proof you can see.** The change working in the browser, the simulator or the real app, including the long text, the phone width and dark mode. Not a wall of green mocked tests.
@@ -44,7 +44,7 @@ Click a skill for what it does in detail.
 | Skill | Say | You get |
 | --- | --- | --- |
 | **Land changes** | | |
-| [ship-it](plugins/good-vibes-only/skills/ship-it) | "ship it", "merge when green" | Proof, PR, babysitting, rebase, merge, deploy, a live check, cleanup |
+| [ship-it](plugins/good-vibes-only/skills/ship-it) | "ship it", "merge when green" | Proof, a review loop, PR, babysitting, rebase, merge, deploy, a live check, cleanup |
 | [review-loop](plugins/good-vibes-only/skills/review-loop) | "review loop", "council" | Fresh reviewers, round after round, until one approves |
 | [verify](plugins/good-vibes-only/skills/verify) | "verify yourself" | Proof you can see: browser, simulator, the real app, the hard states |
 | [build-verification-environment](plugins/good-vibes-only/skills/build-verification-environment) | "build a verification environment" | Build script, demo mode, scripted screenshots and benchmarks, so agents check their own work |
@@ -62,7 +62,7 @@ Click a skill for what it does in detail.
 
 ## How they team up
 
-The skills call each other, which is why they come as one plugin. ship-it proves changes with verify and answers bots with pr-comments. verify runs the scripts that build-verification-environment set up. fan-out writes its briefs with handoff and sends every PR through review-loop and ship-it:
+The skills call each other, which is why they come as one plugin. ship-it proves changes with verify, reviews them with review-loop and answers bots with pr-comments. verify runs the scripts that build-verification-environment set up. fan-out writes its briefs with handoff and lands every issue with ship-it:
 
 <p align="center">
   <picture>
