@@ -30,7 +30,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 
 1. **Prove and review it.** Branch off the default branch if you're on it,
    then prove the change with the `verify` skill. If you can't prove it, say
-   so. Then run `review-loop`, unless the user said to skip the review.
+   so. Then run `review-loop`, unless the user or the `## Ship` section says
+   to skip it.
 2. **File the PR.** Update the PR if the branch already has one. Before
    filing:
    - Rebase onto `origin/<default>`.
@@ -58,7 +59,7 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    If the user asked for a fresh review, run `review-loop` first.
 4. **Merge gate.** On the latest head, all of these must hold:
    - your proof covers the diff
-   - review-loop is done, unless the user skipped it
+   - review-loop is done, unless it was skipped
    - required checks are green
    - the bots the repo waits on, if it runs any (such as Greptile or
      Macroscope), have reviewed it. CodeRabbit never gates.
