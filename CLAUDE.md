@@ -16,7 +16,7 @@ and a `README.md` for people. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Ship
 
-- **Verify:** the checks above; CI runs them on every PR.
+- **Verify:** the checks above. CI runs all of them except the README images.
 - **Merge:** rebase only (`gh pr merge --rebase`). GitHub deletes the branch.
   Bump `version` in `plugins/good-vibes-only/.claude-plugin/plugin.json` when
   a skill's behaviour changes: minor for new or changed behaviour, patch for

@@ -8,12 +8,18 @@ description: Take a change all the way to done. Prove it, review it with review-
 You own the change until it is merged and running where it belongs. Start at
 the step that fits the request: "install the latest main" with nothing to PR
 starts at step 5, and "babysit the PR" starts at step 3. "Ship it" on a PR
-that `almost-ship-it` handed over starts at step 4 and keeps its proof and
-review while the head is unchanged.
+that `almost-ship-it` handed over starts at step 4. Its proof and review stay
+valid under the gate's rules: a rebase or small bot fixes keep them, and
+other new commits go back to step 1.
 
 "Ship it", "merge", "merge when green" and "babysit and merge" allow a merge.
-"PR" and "babysit the PR" alone stop at the merge gate. For the whole flow
-without the merge, use `almost-ship-it`.
+"PR" alone means `almost-ship-it`. "Babysit the PR" alone stops at the merge
+gate.
+
+"Ship it" is also the permission for the test methods step 1 needs, such as
+the browser, a simulator, computer use or running the app, even where a
+project file says to ask first. Rules about how to test still apply. It never
+covers production changes or deleting data.
 
 ## Project rules
 
@@ -49,9 +55,11 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    gate needs finished check runs; no checks reported yet is not green. Otherwise call
    `watch_pull_request` and end your turn. Don't use sleep loops or
    `gh pr checks --watch`. Children never watch; the owning thread does.
-   Outside T3, wait with one background `gh pr checks <n> --watch` instead,
-   and read the reviews and comments when it exits. On each wake, act only on
-   things newer than your latest push:
+   Outside T3, once checks are reported, wait with one background
+   `gh pr checks <n> --watch` instead. When it exits, read the reviews and
+   comments; if a bot the gate waits for hasn't reviewed yet, check once more
+   after a background `sleep 120`. On each wake, act only on things newer
+   than your latest push:
    - Check every bot finding against the code, and fix the real ones.
    - Answer false positives with a written reason, following `pr-comments`.
      Resolving a thread needs
@@ -72,7 +80,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    - the bots the repo waits on, if it runs any (such as Greptile or
      Macroscope), have reviewed it. CodeRabbit never gates.
    - every finding is fixed or answered
-   - no human review requests changes
+   - no human review requests changes, and no required approval is missing
+     (`reviewDecision` isn't `REVIEW_REQUIRED`)
    - GitHub reports the PR as up to date, not `BEHIND` or `DIRTY`
 
    If it's behind, rebase, push with `--force-with-lease` (only this PR's

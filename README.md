@@ -32,7 +32,7 @@ They work in any Claude Code session and shine in [T3 Code](https://github.com/p
 ## Why you'll like it
 
 - **"Ship it" means shipped.** Proof, a fresh review, CI, review bots, rebases, the merge, the deploy and a look at it live. Not "PR opened, good luck".
-- **A fresh review before the PR.** Unless you skip it, ship-it hands each change to a reviewer with no shared history, so nothing gets waved through. It goes round after round until the reviewer approves, or brings three providers at once when you say "council".
+- **A fresh review before the PR.** Unless you skip it, ship-it hands each change to two reviewers from different model families, Opus and Kimi, with no shared history, so nothing gets waved through. It goes round after round until they approve, or brings three providers at once when you say "council".
 - **Five issues, one approval.** fan-out gives each issue its own thread and worktree. You approve all the plans in one place, and each comes back as its own merged PR.
 - **Proof you can see.** The change working in the browser, the simulator or the real app, including the long text, the phone width and dark mode. Not a wall of green mocked tests.
 - **Mornings start with a list.** Who's waiting on you, where every issue stands, and what to start next, like the page above.
@@ -81,7 +81,7 @@ No. Every skill runs in plain Claude Code and falls back where T3 is missing: ve
 Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "Almost ship it" does all of that and stops with the PR ready for you to merge. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
 
 **Which models does it use?**
-The newest of each family, never hardcoded IDs: Opus at xhigh for reviews, and Fable to plan and Opus to build in fan-out. Name another model and it wins.
+The newest of each family, never hardcoded IDs: Opus at xhigh and Kimi Pro review side by side, and Fable plans and Opus builds in fan-out. Name other models in your request or your `CLAUDE.md` and they win.
 
 **How do I update?**
 `claude plugin marketplace update good-vibes-only`, then `claude plugin update good-vibes-only@good-vibes-only`.
