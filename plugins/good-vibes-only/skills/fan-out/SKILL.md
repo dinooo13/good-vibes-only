@@ -39,8 +39,9 @@ In T3, start each thread with `t3_thread_launch`:
 
 Outside T3, use one worktree subagent per issue instead. It plans and
 implements itself, and its ship-it opens the PR without the review, since a
-subagent can't start reviewers. When it reports back, run `review-loop` and
-the rest of `ship-it` on that PR from the main session.
+subagent can't start reviewers. It stops at the merge gate and never merges,
+whatever the brief says. When it reports back, run `review-loop` and the
+rest of `ship-it` on that PR from the main session.
 
 Each brief holds:
 - the issue, "Done when", and the binding docs

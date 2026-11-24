@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Review a change with a fresh Opus xhigh reviewer in its own thread, fix what it finds, and repeat until it approves. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", or "review until it's clean", or asks another model to review a change before it merges.
+description: Review a change with fresh reviewers in their own threads (Opus xhigh and Kimi Pro by default), fix what it finds, and repeat until it approves. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", or "review until it's clean", or asks another model to review a change before it merges.
 ---
 
 # Review loop
@@ -11,13 +11,24 @@ back with evidence, and fight scope creep.
 
 ## Reviewers
 
-Call `orchestrator_capabilities` and take the newest model of each family.
-Never hardcode IDs. A reviewer the user names wins.
+Reviewers the user names, in the request or in their `CLAUDE.md` or
+`AGENTS.md`, win. Otherwise call `orchestrator_capabilities` and take the
+newest model of each family. Never hardcode IDs.
 
-- **Default:** the newest Claude Opus at `xhigh`.
+- **Default:** two reviewers in parallel: the newest Claude Opus at `xhigh`,
+  and the newest Kimi Pro through OpenCode (Kimi K3.1 Pro today) at its
+  highest variant.
 - **Council:** one flagship per provider at high effort or above: the newest
   Claude Opus, GPT Sol, and a third provider through OpenCode (Kimi Pro,
-  else GLM). If one can't run, say so instead of substituting.
+  else GLM).
+
+If a reviewer can't run, say so instead of substituting.
+
+Act on results as they arrive. When one reviewer returns, check its findings
+against the code at once and decide the fixes while the others still run.
+Edit only once no reviewer is still reading the checkout. If the user marks
+a reviewer as non-blocking, don't wait for it, and treat a late result as
+feedback, not a verdict.
 
 Start each reviewer with `delegate_task` (`role: "review"`, `mode: "async"`,
 a new `clientRequestId`). Every round is a new `delegate_task`, never
@@ -27,8 +38,8 @@ poll. A timeout or an error is not an approval.
 Outside T3, start each reviewer as a plain subagent instead (the `Agent`
 tool, general-purpose, in the foreground), with the same brief and the
 reviewer's model and effort, such as Opus at `xhigh`. Every round is again a
-new subagent. Only Claude models run there, so a council gets the Claude
-reviewer alone; say which providers couldn't run. This needs the main
+new subagent. Only Claude models run there, so only the Claude reviewers
+run; say which couldn't. This needs the main
 session, because a subagent can't start subagents. Inside one, skip the
 review and report that the change still needs one.
 
