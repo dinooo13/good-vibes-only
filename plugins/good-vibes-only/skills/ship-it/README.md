@@ -1,6 +1,6 @@
 # ship-it
 
-Proof, PR, babysitting, rebase, merge, pull main, install or deploy, a live check, cleanup.
+Proof, a review loop, PR, babysitting, rebase, merge, pull main, install or deploy, a live check, cleanup.
 
 **Say:** "ship it", "merge when green". Add "skip the review" for a change that doesn't need one.
 

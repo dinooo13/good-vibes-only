@@ -26,9 +26,11 @@ poll. A timeout or an error is not an approval.
 
 Outside T3, start each reviewer as a plain subagent instead (the `Agent`
 tool, general-purpose, in the foreground), with the same brief and the
-reviewer's model. Every round is again a new subagent. Only Claude models run
-there, so a council gets the Claude reviewer alone; say which providers
-couldn't run.
+reviewer's model and effort, such as Opus at `xhigh`. Every round is again a
+new subagent. Only Claude models run there, so a council gets the Claude
+reviewer alone; say which providers couldn't run. This needs the main
+session, because a subagent can't start subagents. Inside one, skip the
+review and report that the change still needs one.
 
 ## Budget
 
