@@ -9,9 +9,9 @@ Do the same work as `ship-it`, but stop with the PR ready for the user to
 merge. Never merge it.
 
 Read [ship-it](../ship-it/SKILL.md) and follow its project rules and steps 1
-to 4: prove, review, file the PR, babysit, and the merge gate. "Almost ship
-it" grants the same testing permission as "ship it". The rules below take
-precedence.
+to 4: prove, review, file the PR, babysit, and the merge gate. It grants the
+same testing permission as ship-it, whatever phrase started it. The rules
+below take precedence.
 
 ## No merging
 
@@ -20,10 +20,10 @@ You may commit, push, rebase, and push this PR's branch with
 queue, push to the default branch, or ask another agent to do any of these.
 
 Once the branch has a PR, read `gh pr view <n> --json autoMergeRequest` and
-turn auto-merge off (`gh pr merge <n> --disable-auto`) only if it's set. If
-the PR is in a merge queue, take it out with `gh api graphql` and the
-`dequeuePullRequest` mutation. Check again before each push, and report what
-you changed.
+turn auto-merge off (`gh pr merge <n> --disable-auto`) only if it's set. Read
+the PR's `isInMergeQueue` and `id` with `gh api graphql`; if it's queued, take
+it out with the `dequeuePullRequest` mutation. Check again before each push,
+and report what you changed.
 
 ## Stop at the gate
 
@@ -36,7 +36,9 @@ Before handing over, fetch and read the live PR once more with
 open, not a draft, and its head is the SHA you gated. Then call
 `unwatch_pull_request` and hand over in one of these states:
 
-- **Ready to merge:** the gate passes and `mergeStateStatus` is `CLEAN`.
+- **Ready to merge:** the gate passes and `mergeStateStatus` is `CLEAN`, or
+  `UNSTABLE` or `HAS_HOOKS` because only checks that aren't required are
+  pending or failing. Name those checks.
 - **Waiting for approval:** the rest of the gate passes, and the PR is
   `BLOCKED` only because `reviewDecision` is `REVIEW_REQUIRED`.
 - **Blocked:** say what blocks it and what you recommend.

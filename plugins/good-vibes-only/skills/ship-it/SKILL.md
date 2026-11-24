@@ -9,17 +9,18 @@ You own the change until it is merged and running where it belongs. Start at
 the step that fits the request: "install the latest main" with nothing to PR
 starts at step 5, and "babysit the PR" starts at step 3. "Ship it" on a PR
 that `almost-ship-it` handed over starts at step 4. Its proof and review stay
-valid under the gate's rules: a rebase or small bot fixes keep them, and
+valid under the gate's rules: a clean rebase or small bot fixes keep them, and
 other new commits go back to step 1.
 
 "Ship it", "merge", "merge when green" and "babysit and merge" allow a merge.
 "PR" alone means `almost-ship-it`. "Babysit the PR" alone stops at the merge
 gate.
 
-"Ship it" is also the permission for the test methods step 1 needs, such as
-the browser, a simulator, computer use or running the app, even where a
-project file says to ask first. Rules about how to test still apply. It never
-covers production changes or deleting data.
+Whatever phrase started it, this skill is the permission for the test
+methods the proof and the live check need, such as the browser, a simulator
+or running the app, even where a project file says to ask first. Computer use
+stays as `verify` allows it. Rules about how to test still apply. It never
+covers changing production beyond the deploy or deleting data.
 
 ## Project rules
 
@@ -35,8 +36,8 @@ At the end, propose a section with the lines `Verify`, `Merge`,
 
 1. **Prove and review it.** Branch off the default branch if you're on it,
    then prove the change with the `verify` skill. If you can't prove it, say
-   so. Then run `review-loop` on the branch, with its default reviewer unless
-   the user named one or asked for a council. If its fixes change behaviour,
+   so. Then run `review-loop` on the branch, with its default reviewers unless
+   the user named others or asked for a council. If its fixes change behaviour,
    prove the change again. Skip the review only when the user says so, or
    when a review loop in this thread already approved this exact diff.
 2. **File the PR.** Update the PR if the branch already has one. Before
@@ -50,16 +51,17 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    - Check the PR for secrets.
 
    Open a real PR, not a draft. Register it with `link_pull_request`.
-3. **Babysit.** Handle the existing checks and comments. If the gate in step
-   4 already passes, go straight to step 4. On a head you just pushed, the
-   gate needs finished check runs; no checks reported yet is not green. Otherwise call
-   `watch_pull_request` and end your turn. Don't use sleep loops or
+3. **Babysit.** Handle the existing checks and comments. If the gate in step 4
+   already passes, go straight to step 4. On a head you just pushed, the gate
+   needs finished check runs; no checks reported yet is not green. Otherwise
+   call `watch_pull_request` and end your turn. Don't use sleep loops or
    `gh pr checks --watch`. Children never watch; the owning thread does.
-   Outside T3, once checks are reported, wait with one background
-   `gh pr checks <n> --watch` instead. When it exits, read the reviews and
-   comments; if a bot the gate waits for hasn't reviewed yet, check once more
-   after a background `sleep 120`. On each wake, act only on things newer
-   than your latest push:
+   Outside T3, wait with one background `gh pr checks <n> --watch` instead;
+   if no checks are reported yet, start it after one background `sleep 30`.
+   When it
+   exits, read the reviews and comments; if a bot the gate waits for hasn't
+   reviewed yet, check once more after a background `sleep 120`. On each wake,
+   act only on things newer than your latest push:
    - Check every bot finding against the code, and fix the real ones.
    - Answer false positives with a written reason, following `pr-comments`.
      Resolving a thread needs
@@ -121,6 +123,6 @@ Report:
 - the follow-ups you declined
 
 Ask only when you are blocked: you can't prove the change, the gate can't
-pass, the step touches data or production beyond the deploy, or the goal is
-ambiguous. Ask with `AskUserQuestion`, putting the context and your
-recommendation in the question. Call `unwatch_pull_request` first.
+pass, the step would change production beyond the deploy or delete data, or
+the goal is ambiguous. Ask with `AskUserQuestion`, putting the context and
+your recommendation in the question. Call `unwatch_pull_request` first.

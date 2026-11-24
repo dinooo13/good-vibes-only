@@ -46,7 +46,7 @@ Click a skill for what it does in detail.
 | **Land changes** | | |
 | [ship-it](plugins/good-vibes-only/skills/ship-it) | "ship it", "merge when green" | Proof, a review loop, PR, babysitting, rebase, merge, deploy, a live check, cleanup |
 | [almost-ship-it](plugins/good-vibes-only/skills/almost-ship-it) | "almost ship it", "ship it but don't merge" | All of ship-it up to the merge, then a PR ready for you to merge |
-| [review-loop](plugins/good-vibes-only/skills/review-loop) | "review loop", "council" | Fresh reviewers, round after round, until one approves |
+| [review-loop](plugins/good-vibes-only/skills/review-loop) | "review loop", "council" | Fresh reviewers, round after round, until they approve |
 | [verify](plugins/good-vibes-only/skills/verify) | "verify yourself" | Proof you can see: browser, simulator, the real app, the hard states |
 | [build-verification-environment](plugins/good-vibes-only/skills/build-verification-environment) | "build a verification environment" | Build script, demo mode, scripted screenshots and benchmarks, so agents check their own work |
 | [pr-comments](plugins/good-vibes-only/skills/pr-comments) | "draft a reply on the PR" | Short comments in your voice, shown as drafts before people see them |
@@ -75,7 +75,7 @@ The skills call each other, which is why they come as one plugin. ship-it proves
 ## FAQ
 
 **Do I need T3 Code?**
-No. Every skill runs in plain Claude Code and falls back where T3 is missing: verify drives the browser with `playwright-cli`, review-loop's reviewers run as plain subagents, ship-it waits on CI with `gh pr checks --watch`, and fan-out runs a worktree subagent per issue, then reviews and lands each PR from your session. Councils need T3 for the non-Claude reviewers.
+No. Every skill runs in plain Claude Code and falls back where T3 is missing: verify drives the browser with `playwright-cli`, review-loop's reviewers run as plain subagents, ship-it waits on CI with `gh pr checks --watch`, and fan-out runs a worktree subagent per issue, then reviews and lands each PR from your session. Kimi, the second default reviewer, and the council's non-Claude reviewers need T3; plain Claude Code reviews with Opus alone.
 
 **Will it merge or post anything without asking?**
 Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "Almost ship it" does all of that and stops with the PR ready for you to merge. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
