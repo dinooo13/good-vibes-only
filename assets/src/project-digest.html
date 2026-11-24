@@ -1,7 +1,8 @@
 <!doctype html>
 <!--
-  Demo of the project-digest page for the README screenshots. Every person,
-  repo and issue here is made up. The styles are the skill's
+  The project-digest page for the README screenshots, filled in from the
+  maintainer's public repos as they stood on Tue 24 Nov 2026 at 08:00. Other
+  people appear without their handles. The styles are the skill's
   digest-template.html; the :root block stands in for T3 Code's theme.
   Render with scripts/readme-shots.sh.
 -->
@@ -73,74 +74,71 @@
 <body>
 <div class="wrap">
 
-  <div class="meta">mika-codes · 5 active repos · Tue 24 Nov 2026, 08:00 CET</div>
+  <div class="meta">dinooo13 · 6 active repos · Tue 24 Nov 2026, 08:00 CET</div>
 
   <div class="stats">
     <div class="stat"><div class="n">5</div><div class="l">open issues</div></div>
     <div class="stat hot"><div class="n">1</div><div class="l">unanswered, 1st-timer</div></div>
-    <div class="stat"><div class="n">1</div><div class="l">PR waiting on you</div></div>
-    <div class="stat bad"><div class="n">4/5</div><div class="l">main branches green</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">unreleased commit</div></div>
+    <div class="stat"><div class="n">4/4</div><div class="l">main branches green</div></div>
   </div>
 
   <section>
     <h2>Needs you</h2>
     <div class="list">
-      <a class="row" href="#">
-        <div><span class="ref">tidepool#58</span><span class="t">Tide times are an hour off after the DST switch</span><span class="new">1ST-TIME</span></div>
+      <a class="row" href="https://github.com/dinooo13/ygo-alpha/issues/176">
+        <div><span class="ref">ygo-alpha#176</span><span class="t">Card code in Storage</span><span class="new">1ST-TIME</span></div>
         <span class="pill p-reply">Reply</span>
-        <div class="d">a sailor from Kiel, Nov 21 · 0 comments. Screenshots attached, same in two harbours.</div>
-      </a>
-      <a class="row" href="#">
-        <div><span class="ref">tidepool#61</span><span class="t">Add Dutch translations</span></div>
-        <span class="pill p-review">Approve CI · review</span>
-        <div class="d">a contributor, Nov 22 · closes #49 · 4 files, +310 · no checks have run, no reviews yet.</div>
-      </a>
-      <a class="row" href="#">
-        <div><span class="ref">tidepool-site</span><span class="t">Deploy failed on main</span></div>
-        <span class="pill p-fail">Red CI</span>
-        <div class="d">Workflow “Deploy”, Nov 23 · the image step ran out of memory. The other 2 workflows are green.</div>
+        <div class="d">a collector, Nov 23 · 0 comments. Wants set code and rarity per card: 30 Blue-Eyes White Dragons, from different sets.</div>
       </a>
     </div>
   </section>
 
   <section>
     <h2>Open issues by repo</h2>
-    <div class="repo"><b>tidepool</b><span>5 open · v2.3.0 + 5 unreleased commits</span></div>
+    <div class="repo"><b>pladder</b><span>4 open · v0.2.1 + 1 unreleased commit</span></div>
     <div class="list">
-      <a class="row" href="#">
-        <div><span class="ref">#55</span><span class="t">Offline cache for saved harbours</span></div>
+      <a class="row" href="https://github.com/dinooo13/pladder/issues/123">
+        <div><span class="ref">#123</span><span class="t">Safe scripts and the agents’ rules: --help everywhere, ## Verify and ## Ship</span></div>
         <span class="pill p-start">Ready to start</span>
       </a>
-      <a class="row" href="#">
-        <div><span class="ref">#57</span><span class="t">Home screen widget with the next high tide</span></div>
-        <span class="pill p-blocked">Blocked by #55</span>
+      <a class="row" href="https://github.com/dinooo13/pladder/issues/124">
+        <div><span class="ref">#124</span><span class="t">Keep --overlay-demo and --screenshots out of the release build</span></div>
+        <span class="pill p-start">Ready to start</span>
       </a>
-      <a class="row" href="#">
-        <div><span class="ref">#49</span><span class="t">Dutch translations</span></div>
-        <span class="pill p-review">PR #61 in review</span>
+      <a class="row" href="https://github.com/dinooo13/pladder/issues/125">
+        <div><span class="ref">#125</span><span class="t">A test copy of your own, and turns on the Neural Engine, GPU and screen</span></div>
+        <span class="pill p-blocked">Blocked by #123</span>
       </a>
-      <a class="row" href="#">
-        <div><span class="ref">#52</span><span class="t">Drop iOS 16 support</span></div>
-        <span class="pill p-decide">Needs your yes</span>
+      <a class="row" href="https://github.com/dinooo13/pladder/issues/126">
+        <div><span class="ref">#126</span><span class="t">Release: a project skill that does the whole release</span></div>
+        <span class="pill p-blocked">Blocked by #123</span>
       </a>
-      <a class="row" href="#">
-        <div><span class="ref">#58</span><span class="t">Tide times are an hour off after the DST switch</span><span class="new">1ST-TIME</span></div>
+    </div>
+    <div class="chain"><code>#123</code><span class="arr">→</span><code>#125</code><span class="arr">+</span><code>#126</code><span class="aside">#124 is independent</span></div>
+
+    <div class="gap"></div>
+    <div class="repo"><b>ygo-alpha</b><span>1 open · deployed from main</span></div>
+    <div class="list">
+      <a class="row" href="https://github.com/dinooo13/ygo-alpha/issues/176">
+        <div><span class="ref">#176</span><span class="t">Card code in Storage</span><span class="new">1ST-TIME</span></div>
         <span class="pill p-reply">Unanswered</span>
       </a>
     </div>
-    <div class="chain"><code>#55</code><span class="arr">→</span><code>#57</code><span class="aside">#49, #52 and #58 are independent</span></div>
+
     <div class="gap"></div>
-    <div class="quiet"><span><i>●</i> brewlog</span><span><i>●</i> trail-cli</span><span><i>●</i> dotfiles</span><span>no open issues, main green</span></div>
+    <div class="quiet"><span><i>●</i> good-vibes-only</span><span><i>●</i> fmeyer.dev</span><span><i>●</i> homebrew-tap</span><span><i>●</i> rheinwerk-starter-skills</span><span>no open issues</span></div>
   </section>
 
   <section>
     <h2>Kick off next</h2>
     <div class="steps">
-      <div class="step"><div><div class="cmd">fan-out tidepool#55</div><div class="why">Unblocks #57, the most requested feature.</div></div></div>
-      <div class="step"><div><div class="cmd">pr-comments tidepool#58</div><div class="why">A first-time reporter has waited 3 days. Even “confirmed, fix coming” helps.</div></div></div>
-      <div class="step"><div><div class="cmd">ship-it tidepool-site</div><div class="why">Fix the deploy so last week’s release notes go live.</div></div></div>
+      <div class="step"><div><div class="cmd">fan-out pladder#123 pladder#124</div><div class="why">#123 unblocks #125 and #126, and #124 is independent, so both run in parallel.</div></div></div>
+      <div class="step"><div><div class="cmd">pr-comments ygo-alpha#176</div><div class="why">A first-time reporter with a clear ask. Even “planned, not yet” helps.</div></div></div>
     </div>
   </section>
+
+  <div class="quiet">Ignored: habit-tracker-demo</div>
 
 </div>
 </body></html>

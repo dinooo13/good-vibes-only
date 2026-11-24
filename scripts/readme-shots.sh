@@ -16,9 +16,9 @@ while read -r name width height; do
   for mode in light dark; do
     "$CHROME" --headless --hide-scrollbars --force-device-scale-factor=2 \
       --window-size="$width,$height" --screenshot="$ROOT/assets/$name-$mode.png" \
-      "file://$ROOT/assets/src/$name-demo.html#$mode" 2>/dev/null
+      "file://$ROOT/assets/src/$name.html#$mode" 2>/dev/null
     echo "assets/$name-$mode.png"
   done
 done <<'SHOTS'
-project-digest 820 1092
+project-digest 820 958
 SHOTS

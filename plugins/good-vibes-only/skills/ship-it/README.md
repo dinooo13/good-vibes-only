@@ -1,0 +1,13 @@
+# ship-it
+
+Proof, PR, babysitting, rebase, merge, pull main, install or deploy, a live check, cleanup.
+
+**Say:** "ship it", "merge when green"
+
+"Ship it" should mean shipped. The skill proves the change before the PR, then babysits checks and review bots: it fixes the real findings, answers false positives with a reason, and declines scope creep. It rebases when the branch falls behind and only merges once the gate is green. After the merge it pulls main, installs or deploys, and looks at the result live. Each project describes its verify, merge, after-merge and live-check steps in a `## Ship` section of its `CLAUDE.md` or `AGENTS.md`. Without one, the skill works them out from the repo and proposes the section; build-verification-environment writes it for you.
+
+"PR" or "babysit the PR" alone stops at the merge gate.
+
+---
+
+Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
