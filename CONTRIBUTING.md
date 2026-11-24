@@ -28,4 +28,5 @@ scripts/readme-shots.sh
 ```
 
 It renders each page in light and dark at 2x with Playwright's headless
-Chromium. Look at every image before you commit it.
+Chromium. The fan-out diagram is drawn by `python3 assets/src/fan-out-diagram.py`.
+Look at every image before you commit it.

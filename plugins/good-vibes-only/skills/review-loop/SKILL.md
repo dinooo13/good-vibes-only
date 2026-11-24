@@ -24,6 +24,12 @@ a new `clientRequestId`). Every round is a new `delegate_task`, never
 `t3_thread_send`. Don't edit the files under review while it runs, and don't
 poll. A timeout or an error is not an approval.
 
+Outside T3, start each reviewer as a plain subagent instead (the `Agent`
+tool, general-purpose, in the foreground), with the same brief and the
+reviewer's model. Every round is again a new subagent. Only Claude models run
+there, so a council gets the Claude reviewer alone; say which providers
+couldn't run.
+
 ## Budget
 
 Run 3 rounds. Allow up to 5 for security, auth, data loss or concurrency while
