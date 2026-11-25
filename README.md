@@ -1,6 +1,6 @@
 # Good Vibes Only ✌️
 
-Thirteen agent workflow skills for Claude Code, Codex and Antigravity that take your agents' work from "done, I think" to merged, deployed and checked live. You stop babysitting and start reviewing plans.
+Thirteen workflow skills for Claude Code, Codex and Antigravity that take your agents' work from "done, I think" to merged, deployed and checked live. You stop babysitting and start reviewing plans.
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-plugin-d97757)](#install)
 [![Codex](https://img.shields.io/badge/Codex-plugin-10a37f)](#install)
@@ -17,6 +17,14 @@ Thirteen agent workflow skills for Claude Code, Codex and Antigravity that take 
   <br>
   <sub>A Tuesday morning in my own repos, as project-digest shows it in T3 Code.</sub>
 </p>
+
+## Why you'll like it
+
+- **"Ship it" means shipped.** Proof, a fresh review, CI, review bots, rebases, the merge, the deploy and a look at it live. Not "PR opened, good luck".
+- **A fresh review before the PR.** Unless you skip it, ship-it hands each change to fresh reviewers with no shared history — Opus and Gemini side by side in T3 Code, or three providers with "council" — and loops until they approve.
+- **Five issues, one approval.** fan-out gives each issue its own thread and worktree. You approve all the plans in one place, and each comes back as its own merged PR.
+- **Proof you can see.** The change working in the browser, the simulator or the real app, including the long text, the phone width and dark mode. Not a wall of green mocked tests.
+- **Mornings start with a list.** Who's waiting on you, where every issue stands, and what to start next, like the page above.
 
 ## Install
 
@@ -42,15 +50,7 @@ agy plugin install https://github.com/dinooo13/good-vibes-only/tree/main/plugins
 
 That's it. Your agent picks a skill from what you say, or you call one by name (`/good-vibes-only:ship-it` in Claude Code, `$ship-it` in Codex, `/ship-it` in Antigravity).
 
-They work in any standalone session and shine in [T3 Code](https://github.com/pingdotgg/t3code), where they get threads, agents on other providers, PR watching, a preview browser, simulators and schedules.
-
-## Why you'll like it
-
-- **"Ship it" means shipped.** Proof, a fresh review, CI, review bots, rebases, the merge, the deploy and a look at it live. Not "PR opened, good luck".
-- **A fresh review before the PR.** Unless you skip it, ship-it hands each change to two reviewers from different model families, Opus and Gemini, with no shared history, so nothing gets waved through. It goes round after round until they approve, or brings three providers at once when you say "council".
-- **Five issues, one approval.** fan-out gives each issue its own thread and worktree. You approve all the plans in one place, and each comes back as its own merged PR.
-- **Proof you can see.** The change working in the browser, the simulator or the real app, including the long text, the phone width and dark mode. Not a wall of green mocked tests.
-- **Mornings start with a list.** Who's waiting on you, where every issue stands, and what to start next, like the page above.
+They work in any standalone session and shine in [T3 Code](https://github.com/pingdotgg/t3code), where they get threads, agents on other providers, PR watching, a preview browser, simulators and schedules. For updating, prerequisites, project rules (`## Verify` and `## Ship`) and uninstalling, see [INSTALL.md](INSTALL.md).
 
 ## The lineup
 
@@ -90,18 +90,16 @@ The skills call each other, which is why they come as one plugin. ship-it proves
 ## FAQ
 
 **Do I need T3 Code?**
-No. Every skill runs standalone in Claude Code, Codex or Antigravity and falls back where it can: verify drives the browser with `playwright-cli`, review-loop runs your current provider's reviewer as a plain subagent, and fan-out runs one isolated worktree per issue. Cross-provider reviewers (such as Opus and Gemini side by side) need T3.
+No. Every skill runs standalone in Claude Code, Codex or Antigravity and falls back where it can: verify drives the browser with `playwright-cli`, review-loop runs your current provider's reviewer as a plain subagent, and fan-out runs one isolated worktree per issue. Cross-provider reviewers (such as Opus and Gemini side by side) need T3. See the [full comparison](INSTALL.md#standalone-vs-t3-code).
 
 **Will it merge or post anything without asking?**
 Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "Almost ship it" does all of that and stops with the PR ready for you to merge. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
 
 **Which models does it use?**
-The newest of each family, never hardcoded IDs: Opus and Gemini Neon at xhigh review side by side, and Fable plans and Opus builds in fan-out. Name other models in your request or your `CLAUDE.md` / `AGENTS.md` and they win.
+The newest of each family, never hardcoded IDs: Opus and Gemini Neon at xhigh review side by side (and "council" adds GPT Sol), and Fable plans and Opus builds in fan-out. Name other models in your request or your `CLAUDE.md` / `AGENTS.md` and they win.
 
 **How do I update?**
-- Claude Code: `claude plugin marketplace update good-vibes-only && claude plugin update good-vibes-only@good-vibes-only`
-- Codex: `codex plugin marketplace upgrade good-vibes-only`
-- Antigravity: `agy plugin install https://github.com/dinooo13/good-vibes-only/tree/main/plugins/good-vibes-only`
+See [INSTALL.md](INSTALL.md#update) for Claude Code, Codex and Antigravity.
 
 ## Credits
 
