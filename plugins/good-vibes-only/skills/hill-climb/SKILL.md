@@ -39,9 +39,11 @@ already said go.
 ## Each round
 
 1. **Critic.** Start a new `delegate_task` (`role: "review"`) with the newest
-   Fable or Opus at `xhigh`. Never reuse a critic.
+   Fable or Opus at `xhigh`. Never reuse a critic. Outside T3, start a fresh
+   plain subagent instead.
    - **Give it** the rubric, the references, the capture plan, the commit to
-     judge, and the round 1 critique for calibration.
+     judge, the round 1 critique for calibration, and (from round 2 on) the
+     list of claimed fixes since last round.
    - **Never tell it** the target or what you hope for.
    - **The task text says** to make its own captures with the `verify`
      skill's tools, to write only under `hill-climb/critiques/` and
@@ -58,9 +60,10 @@ already said go.
    Sonnet for clear fixes, Opus `high` for judgement. Give them worktrees or
    disjoint files. Integrate, build, and commit a snapshot for the next critic.
 4. **Measure one at a time.** Measurements on shared hardware (GPU, Neural
-   Engine, a simulator) use the lock in `fan-out`'s **Shared resources** rules; put it in each
-   implementer's task text. Fix the real defect, not the metric. If the headline drops, fix that
-   first.
+   Engine, a simulator) use the repo's `scripts/lock.sh`, or
+   [lock.sh](../../scripts/lock.sh) if the repo doesn't have one; put it in
+   each implementer's task text. Fix the real defect, not the metric. If the
+   headline drops, fix that first.
 
 ## Stopping
 
@@ -78,6 +81,8 @@ short loops with the user instead: install, ask one question, change one
 thing, keep the old version one revert away.
 
 At the end, install or run the result for the user, and point them at the hard
-states. Write the design decisions into `DESIGN.md` and link it from
-`CLAUDE.md`. Report the score trajectory, what moved it, and what's left. Land
-it with `ship-it` if they ask.
+states. Write the lasting design decisions into `DESIGN.md` and link it from
+`CLAUDE.md`. Before shipping, remove `hill-climb/` (and any `.gitignore`
+entries added just for it) unless the user asks to keep the history. Report
+the score trajectory, what moved it, and what's left. Land it with `ship-it`
+if they ask.

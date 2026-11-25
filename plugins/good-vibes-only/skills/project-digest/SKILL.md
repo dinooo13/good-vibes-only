@@ -33,8 +33,10 @@ Per repo, read all open issues and PRs, not only recent ones. Loop with
 `… --jq '.[].nameWithOwner' | while read -r r; do …; done`: zsh doesn't split
 an unquoted `$REPOS`.
 
-- **Open issues:** `gh issue list -R <r> --json number,title,body,labels,author,comments,blockedBy,url`,
-  and `author_association` from `gh api "repos/<r>/issues?state=open"`.
+- **Open issues:** fetch open issues once per repo (e.g.
+  `gh api "repos/<r>/issues?state=open&per_page=100"`, filtering out items
+  with `pull_request`, which includes `author_association`; use GraphQL or
+  `gh issue list` only when you also need native `blockedBy` links).
   Give each a status; the first that fits wins:
   - **PR #N in review** or **PR #N green, draft**: an open PR lists it in
     `closingIssuesReferences`, or says "closes #N" or "(#N)" in its title or
@@ -91,10 +93,10 @@ If GraphQL is rate limited, use `gh api repos/…` (REST).
 **In T3 Code:** fill in [digest-template.html](digest-template.html). Keep its
 styles and replace every sample row; none of them is real. Every row links to
 GitHub, and empty sections are left out. End with one muted line naming the
-ignored repos, if there are any. Write the page to the scratchpad, check it
-with `html_preview`, then show it with `html_render`. The text reply says only
-what the page doesn't, such as errors or repos that couldn't be read.
+ignored repos, if there are any. Pass the HTML inline to `html_preview` and
+`html_render` (or write it to `/tmp/project-digest.html`). The text reply says
+only what the page doesn't, such as errors or repos that couldn't be read.
 
-**Elsewhere,** write text in the groups **Needs you**, **Broken**, **Ready**,
-**Open issues** and **FYI**, skipping empty ones. Write one line per item
-with a link, saying who did what, then the kick-off list.
+**Elsewhere,** write text with the same sections (**Needs you**, **Open issues
+by repo**, **Your PRs**, **Kick off next**, plus a quiet-repos line), skipping
+empty ones. Write one line per item with a link, saying who did what.

@@ -15,8 +15,8 @@ each family, unless the user names others:
 
 ## 1. Gather
 
-- **Read** each issue with `gh issue view <n> --comments`, and the docs that
-  `CLAUDE.md` marks as binding.
+- **Read** each issue with `read_issue` (and `link_issue` when working on it),
+  or `gh` outside T3, plus the docs that `CLAUDE.md` marks as binding.
 - **Check "Done when".** Every issue needs testable criteria. If they're
   missing, draft them. Add them to the issue after the user's OK; in plan-only
   mode, put them in the plan comment instead.
@@ -32,24 +32,26 @@ asks.
 ## 2. Start one thread per issue
 
 In T3, start each thread with `t3_thread_launch`:
-- `workspaceStrategy: {type: "worktree", baseRef: <current default branch>, branch}`
+- `workspaceStrategy: {type: "worktree", baseRef: "origin/<default>", startFromOrigin: true, branch}`
 - `modelSelection` for the issue-thread model
 - `delegatedFrom` set to this thread
 - a brief written with the `handoff` skill
 
-Outside T3, use one worktree subagent per issue instead.
+Outside T3, use one worktree subagent per issue instead; each runs the flow
+directly (without nested subagents or thread messages) and stops before
+merging.
 
 Each brief holds:
 - the issue, "Done when", and the binding docs
 - the user's decisions so far, as "decided, do not reopen"
-- the lock rules below, with the exact paths
+- the lock script path below
 - whether merges are allowed, and whether `--auto` applies
 - your thread id
 - the issue flow in section 3
 
 **Dependencies.** Launch a dependent issue's thread only after the thread it
-depends on reports its merge. Its `baseRef` is then the updated default
-branch.
+depends on reports its merge. Use `baseRef: "origin/<default>"` with
+`startFromOrigin: true` so it picks up the merge.
 
 ## 3. The issue flow (inside each issue thread)
 
@@ -74,23 +76,16 @@ branch.
 
 ## 4. Coordinate
 
-- **Approvals.** As plan summaries arrive, show the user all of them together,
-  with the open questions and the order. On their go, for all issues or for
-  each one, pass the go and their decisions to each thread with
+- **Approvals.** Wait until all launched threads have sent their plan
+  summaries (or note any stalled one), then show the user all of them
+  together, with the open questions and the order. On their go, for all issues
+  or for each one, pass the go and their decisions to each thread with
   `t3_thread_send`.
-- **Shared resources.** Use one lock per resource. If the repo has
-  `scripts/lock.sh`, wrap each measurement in it
-  (`scripts/lock.sh gpu -- <bench>`): it waits, names the owner and always
-  releases. Otherwise fill in the exact path (such as `/tmp/pladder-gpu.lock`):
-  - Take it with `mkdir <lock path>`, with an `owner` file inside naming the
-    thread. The `mkdir` decides who goes.
-  - If it's taken, wait with one background
-    `until mkdir <lock path> 2>/dev/null; do sleep 30; done`.
-  - Release it with `rm -r`, and never break someone else's lock.
-  - When a thread is stopped or fails, you remove the locks its `owner` file
-    names.
-  - Once all threads run, send each the others' thread ids. They may tell each
-    other about long holds.
+- **Shared resources.** Use one lock per resource with the repo's
+  `scripts/lock.sh`, or [lock.sh](../../scripts/lock.sh) if the repo doesn't
+  have one (`lock.sh gpu -- <bench>`): it waits, names the owner, clears stale
+  locks and always releases. Once all threads run, send each the others'
+  thread ids so they can warn each other about long holds.
 - **Tracking.** Keep a table (issue, thread link, plan, PR, state) and answer
   status questions from it. Follow the threads' messages instead of polling
   them.
@@ -105,8 +100,9 @@ For an overnight run, without threads:
 - Start one Fable `xhigh` planner per issue as in step 3.1.
 - Plan the open issues that have no plan yet. An issue counts as planned when
   it has a comment starting `## Plan (fan-out)` that is newer than both the
-  body's last edit (`lastEditedAt` through `gh api graphql`) and its newest
-  other comment. Don't go by `updatedAt`; your own plan comment bumps it.
+  body's last edit (`lastEditedAt` or `createdAt` if unedited, via
+  `gh api graphql`) and its newest other comment. Don't go by `updatedAt`;
+  your own plan comment bumps it.
   Skip `blocked` and `draft` issues.
 - Post each plan as a comment that starts with that heading and ends with the
   open questions. `--plan-only` is the OK to post these, without an

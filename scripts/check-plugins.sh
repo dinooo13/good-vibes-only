@@ -58,10 +58,30 @@ while IFS= read -r S; do
   [ "$(head -1 "$S")" = "---" ] && [ "$(sed 1d "$S" | grep -cx -- '---')" -ge 1 ] ||
     { err "$S has no frontmatter between --- lines"; continue; }
   folder=$(basename "$(dirname "$S")")
+  sdir=$(dirname "$S")
   name=$(value name "$S")
   [ -n "$name" ] || err "$S has no name"
   [ -z "$name" ] || [ "$name" = "$folder" ] || err "$S is named '$name' but lives in '$folder'"
   [ -n "$(value description "$S")" ] || err "$S has no description"
+  [ -f "$sdir/README.md" ] || err "$sdir has no README.md"
+  while IFS= read -r target; do
+    path=${target%%#*}
+    [ -n "$path" ] || continue
+    case "$path" in http://*|https://*|mailto:*|/*) continue ;; esac
+    [ -e "$sdir/$path" ] || err "$S links to missing '$path'"
+  done < <(awk '
+    /^```/ { code = !code; next }
+    code { next }
+    {
+      line = $0
+      while (match(line, /\[[^][]+\]\([^() \t]+\)/)) {
+        m = substr(line, RSTART, RLENGTH)
+        sub(/^\[[^][]+\]\(/, "", m)
+        sub(/\)$/, "", m)
+        print m
+        line = substr(line, RSTART + RLENGTH)
+      }
+    }' "$S")
 done < <(git ls-files 'plugins/*/SKILL.md')
 [ "$skills" -gt 0 ] || err "no SKILL.md found"
 

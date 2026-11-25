@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Review a change with fresh reviewers (Opus and Gemini Neon at xhigh by default), fix what they find, and repeat until they approve. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", or "review until it's clean", or asks another model to review a change before it merges.
+description: Review a change with fresh reviewers from different model families, fix what they find, and repeat until they approve. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", or "review until it's clean", or asks another model to review a change before it merges.
 ---
 
 # Review loop
@@ -15,8 +15,7 @@ Call `orchestrator_capabilities` and take the newest model of each family.
 Never hardcode IDs. A reviewer the user names wins.
 
 - **Default:** two reviewers in parallel: the newest Claude Opus at `xhigh`
-  and the newest Gemini Neon through Antigravity (Gemini 4 Neon today) at
-  `xhigh` `thought_level`.
+  and the newest Gemini Neon through Antigravity at `xhigh` `thought_level`.
 - **Council:** one flagship per provider at high effort or above: the newest
   Claude Opus, GPT Sol, and Gemini Neon through Antigravity. If one can't
   run, say so instead of substituting.
@@ -24,11 +23,13 @@ Never hardcode IDs. A reviewer the user names wins.
 Start each reviewer with `delegate_task` (`role: "review"`, `mode: "async"`,
 a new `clientRequestId`). Every round is a new `delegate_task`, never
 `t3_thread_send`. Don't edit the files under review while it runs, and don't
-poll. A timeout or an error is not an approval. With several reviewers, check
-each result as it arrives and edit once all have returned.
+poll. A timeout or an error is not an approval; retry a failed reviewer once,
+then report that it didn't run and ask the user if you can't reach sign-off.
+With several reviewers, check each result as it arrives and edit once all have
+returned.
 
-Outside T3, start each reviewer as a plain subagent (the `Agent` tool) with
-the same brief. Only the Claude reviewers run there; say which couldn't.
+Outside T3, start each reviewer as a plain subagent with the same brief. Only
+the Claude reviewers run there; say which couldn't.
 
 ## Budget
 
@@ -40,7 +41,8 @@ nits.
 
 Before starting, fix known issues and outstanding PR comments, then run the
 covering checks. Find the base with `git merge-base HEAD origin/<base>`.
-Don't include unrelated changes.
+Don't include unrelated changes. Give each reviewer a short ID prefix (such as
+`O` for Opus, `G` for Gemini, `S` for Sol) so parallel ledgers never collide.
 
 Brief:
 
@@ -54,7 +56,7 @@ hides a bug. Flag code, tests or guards the intent does not need.
 blocker = intended case wrong. should = real bug callers will hit. nit = the rest.
 Reply:
 VERDICT: APPROVE or CHANGES
-R1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>
+<prefix>1 [blocker|should|nit] <file>:<line> <claim>. Fix: <suggestion>
 ```
 
 ## Answering findings
@@ -68,12 +70,13 @@ Check each finding and its severity yourself.
   follow-up.
 
 Keep a ledger with the id, severity and outcome of each finding. Re-run the
-checks, and if the diff grew, cut it back first. Record the SHA each round
-reviewed: commit first, or use `git stash create`.
+checks, and if the diff grew, cut it back first. Commit your fixes before the
+next round (you can tidy or squash commits before opening the PR) and record
+the SHA each round reviewed.
 
-The next round gets a fresh reviewer, with the brief, the ledger and
-`git diff <last reviewed sha>`. It checks only the open ids and the changed
-code.
+The next round starts fresh reviewers for every seat, with the brief, the
+ledger, `git diff <base>` for context, and `git diff <last reviewed sha>` for
+what changed. They check only the open ids and regressions in what changed.
 
 ## Stopping
 
@@ -82,9 +85,9 @@ code.
 - **Stuck:** a finding is still disputed after two replies, or the budget ran
   out. Show both sides in a few lines and let the user decide.
 
-If there is a PR, add the verdicts to its description, before the model line.
-Edit the description; don't post a comment. Without a PR, put them in the
-report.
+If there is a PR, add the verdicts to its description (`pull_request_update`,
+or `gh` outside T3), before any attribution footer. Edit the description; don't
+post a comment. Without a PR, put them in the report.
 
 ```markdown
 ## Review loop

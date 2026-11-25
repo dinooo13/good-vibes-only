@@ -60,10 +60,10 @@ on the discussion.
 - Check the whole text, quotes and attachments included, for secrets and
   private details.
 - Preview the Markdown so quotes and blank lines render as intended.
-- Post it with the matching `gh` command: `gh pr comment`, `gh issue comment`,
-  `gh api` for review replies, or `gh api graphql` for discussions. Pass the
-  body from a file (`--body-file`, or `-F body=@file` for `gh api`), never
-  inline, where backticks would run as shell commands.
+- Post with T3's `pull_request_respond` (for PR comments, review replies and
+  resolving threads) or `comment_on_issue` when available. Otherwise, and for
+  GitHub Discussions, fall back to `gh` — passing the body from a file rather
+  than inline, so backticks never run as shell commands.
 - Confirm GitHub returned the URL.
 - Resolve a review thread only after its reply is posted.
 - Report the link.
