@@ -1,6 +1,7 @@
 ---
 name: fan-out
-description: Take several GitHub issues from plan to merged PRs in parallel. One T3 thread per issue, in its own worktree, runs the whole flow: a planner, a short summary for the user's approval, an implementer, verify, review-loop and ship-it. The coordinator starts the threads, collects the approvals and merges dependencies first. Use when the user names issues to implement ("look at issues 36, 37 and 38", "implement the open issues", "spawn a planner and an implementer for each") or says "fan out". With --plan-only it only posts plans on the issues, for example overnight.
+description: >-
+  Take several GitHub issues from plan to merged PRs in parallel. One T3 thread per issue, in its own worktree, runs the whole flow: a planner, a short summary for the user's approval, an implementer, verify, review-loop and ship-it. The coordinator starts the threads, collects the approvals and merges dependencies first. Use when the user names issues to implement ("look at issues 36, 37 and 38", "implement the open issues", "spawn a planner and an implementer for each") or says "fan out". With --plan-only it only posts plans on the issues, for example overnight.
 ---
 
 # Fan out

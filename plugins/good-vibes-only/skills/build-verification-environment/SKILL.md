@@ -1,6 +1,7 @@
 ---
 name: build-verification-environment
-description: Set up a repo so agents can verify their own work without a human: a build script, a demo or seed mode, scripted screenshots, fixtures and a benchmark with a baseline, a CLI into the core, CI checks that keep docs honest, a lock for shared hardware, and the `## Verify` and `## Ship` sections that verify and ship-it read. Use when the user says "build a verification environment", "set up a harness", "make this verifiable", "so you can test it yourself" or "keep the script", or when verify had to improvise because the repo has no `## Verify` section.
+description: >-
+  Set up a repo so agents can verify their own work without a human: a build script, a demo or seed mode, scripted screenshots, fixtures and a benchmark with a baseline, a CLI into the core, CI checks that keep docs honest, a lock for shared hardware, and the `## Verify` and `## Ship` sections that verify and ship-it read. Use when the user says "build a verification environment", "set up a harness", "make this verifiable", "so you can test it yourself" or "keep the script", or when verify had to improvise because the repo has no `## Verify` section.
 ---
 
 # Build verification environment
