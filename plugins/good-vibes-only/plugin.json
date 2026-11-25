@@ -1,0 +1,29 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "good-vibes-only",
+  "version": "0.7.0",
+  "description": "Agent workflow skills for T3 Code: ship-it, almost-ship-it, review-loop, fan-out, handoff, hill-climb, verify, build-verification-environment, pr-comments, product-readme, web-quality, project-digest and tidy-repos.",
+  "author": {
+    "name": "Fabian Meyer",
+    "url": "https://github.com/dinooo13"
+  },
+  "repository": "https://github.com/dinooo13/good-vibes-only",
+  "license": "MIT",
+  "keywords": [
+    "t3-code",
+    "workflow",
+    "pull-request",
+    "code-review",
+    "orchestration",
+    "subagents"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Good Vibes Only",
+        "shortDescription": "Workflow skills for shipping, reviewing, fanning out, and verifying changes.",
+        "category": "Developer Tools"
+      }
+    }
+  }
+}

@@ -16,7 +16,8 @@ each family, unless the user names others:
 ## 1. Gather
 
 - **Read** each issue with `read_issue` (and `link_issue` when working on it),
-  or `gh` outside T3, plus the docs that `CLAUDE.md` marks as binding.
+  or `gh` outside T3, plus the docs that `CLAUDE.md` or `AGENTS.md` marks as
+  binding.
 - **Check "Done when".** Every issue needs testable criteria. If they're
   missing, draft them. Add them to the issue after the user's OK; in plan-only
   mode, put them in the plan comment instead.
@@ -37,9 +38,10 @@ In T3, start each thread with `t3_thread_launch`:
 - `delegatedFrom` set to this thread
 - a brief written with the `handoff` skill
 
-Outside T3, use one worktree subagent per issue instead; each runs the flow
-directly (without nested subagents or thread messages) and stops before
-merging.
+Only outside T3 (when `t3_thread_launch` isn't available), use one isolated
+worktree per issue instead (a worktree subagent, or `git worktree add` plus a
+native subagent); each runs the flow directly (without nested subagents or
+thread messages) and stops before merging.
 
 Each brief holds:
 - the issue, "Done when", and the binding docs

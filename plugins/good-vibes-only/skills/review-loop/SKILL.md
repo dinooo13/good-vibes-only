@@ -20,16 +20,18 @@ Never hardcode IDs. A reviewer the user names wins.
   Claude Opus, GPT Sol, and Gemini Neon through Antigravity. If one can't
   run, say so instead of substituting.
 
-Start each reviewer with `delegate_task` (`role: "review"`, `mode: "async"`,
-a new `clientRequestId`). Every round is a new `delegate_task`, never
-`t3_thread_send`. Don't edit the files under review while it runs, and don't
-poll. A timeout or an error is not an approval; retry a failed reviewer once,
-then report that it didn't run and ask the user if you can't reach sign-off.
-With several reviewers, check each result as it arrives and edit once all have
-returned.
+In T3 Code, always start every reviewer with `delegate_task` (`role: "review"`,
+`mode: "async"`, a new `clientRequestId`) — never a native subagent tool
+(`Agent`, `spawn_agent`, `invoke_subagent`) and never `t3_thread_send`. Every
+round is a new `delegate_task`. Don't edit the files under review while it runs,
+and don't poll. A timeout or an error is not an approval; retry a failed
+reviewer once, then report that it didn't run and ask the user if you can't
+reach sign-off. With several reviewers, check each result as it arrives and edit
+once all have returned.
 
-Outside T3, start each reviewer as a plain subagent with the same brief. Only
-the Claude reviewers run there; say which couldn't.
+Only outside T3 (when `delegate_task` isn't available), fall back to your
+harness's native subagent tool with the same brief. Only your current provider's
+reviewer can run there; say which others couldn't.
 
 ## Budget
 

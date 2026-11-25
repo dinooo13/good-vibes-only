@@ -8,4 +8,4 @@ Branches whose PRs merged, worktrees that are clean and merged, stale refs: gone
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).

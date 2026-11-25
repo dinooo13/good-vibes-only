@@ -10,4 +10,4 @@ Proof, a review loop, PR, babysitting, rebase, merge, pull main, install or depl
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).

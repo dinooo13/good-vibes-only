@@ -1,8 +1,10 @@
 # Good Vibes Only ✌️
 
-Thirteen Claude Code skills that take your agents' work from "done, I think" to merged, deployed and checked live. You stop babysitting and start reviewing plans.
+Thirteen agent workflow skills for Claude Code, Codex and Antigravity that take your agents' work from "done, I think" to merged, deployed and checked live. You stop babysitting and start reviewing plans.
 
-[![Claude Code plugin](https://img.shields.io/badge/Claude_Code-plugin-d97757)](#install)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-plugin-d97757)](#install)
+[![Codex](https://img.shields.io/badge/Codex-plugin-10a37f)](#install)
+[![Antigravity](https://img.shields.io/badge/Antigravity-plugin-4285f4)](#install)
 [![Best in T3 Code](https://img.shields.io/badge/best_in-T3_Code-6e40c9)](https://github.com/pingdotgg/t3code)
 [![CI](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml/badge.svg)](https://github.com/dinooo13/good-vibes-only/actions/workflows/ci.yml)
 [![MIT license](https://img.shields.io/badge/license-MIT-2ea043)](LICENSE)
@@ -18,16 +20,29 @@ Thirteen Claude Code skills that take your agents' work from "done, I think" to 
 
 ## Install
 
-In Claude Code:
+**Claude Code**
 
 ```
 /plugin marketplace add dinooo13/good-vibes-only
 /plugin install good-vibes-only@good-vibes-only
 ```
 
-That's it. Claude picks a skill from what you say, or you call one by name, like `/good-vibes-only:ship-it`.
+**Codex**
 
-They work in any Claude Code session and shine in [T3 Code](https://github.com/pingdotgg/t3code), where they get threads, agents on other providers, PR watching, a preview browser, simulators and schedules.
+```bash
+codex plugin marketplace add dinooo13/good-vibes-only
+codex plugin add good-vibes-only@good-vibes-only
+```
+
+**Antigravity**
+
+```bash
+agy plugin install https://github.com/dinooo13/good-vibes-only/tree/main/plugins/good-vibes-only
+```
+
+That's it. Your agent picks a skill from what you say, or you call one by name (`/good-vibes-only:ship-it` in Claude Code, `$ship-it` in Codex, `/ship-it` in Antigravity).
+
+They work in any standalone session and shine in [T3 Code](https://github.com/pingdotgg/t3code), where they get threads, agents on other providers, PR watching, a preview browser, simulators and schedules.
 
 ## Why you'll like it
 
@@ -75,16 +90,18 @@ The skills call each other, which is why they come as one plugin. ship-it proves
 ## FAQ
 
 **Do I need T3 Code?**
-No. Every skill runs in plain Claude Code and falls back where it can: verify drives the browser with `playwright-cli`, review-loop runs its Claude reviewers as plain subagents, and fan-out runs a worktree subagent per issue. The non-Claude reviewers, like Gemini, need T3.
+No. Every skill runs standalone in Claude Code, Codex or Antigravity and falls back where it can: verify drives the browser with `playwright-cli`, review-loop runs your current provider's reviewer as a plain subagent, and fan-out runs one isolated worktree per issue. Cross-provider reviewers (such as Opus and Gemini side by side) need T3.
 
 **Will it merge or post anything without asking?**
 Only what you asked for. "Ship it" allows a merge, and only after verify proved the change and a review loop signed off; say "skip the review" for a change that doesn't need one. "Almost ship it" does all of that and stops with the PR ready for you to merge. Comments a person will read are shown to you as drafts first. project-digest is read only, tidy-repos never deletes unmerged work, and product-readme touches the repo description only after your OK.
 
 **Which models does it use?**
-The newest of each family, never hardcoded IDs: Opus and Gemini Neon at xhigh review side by side, and Fable plans and Opus builds in fan-out. Name other models in your request or your `CLAUDE.md` and they win.
+The newest of each family, never hardcoded IDs: Opus and Gemini Neon at xhigh review side by side, and Fable plans and Opus builds in fan-out. Name other models in your request or your `CLAUDE.md` / `AGENTS.md` and they win.
 
 **How do I update?**
-`claude plugin marketplace update good-vibes-only`, then `claude plugin update good-vibes-only@good-vibes-only`.
+- Claude Code: `claude plugin marketplace update good-vibes-only && claude plugin update good-vibes-only@good-vibes-only`
+- Codex: `codex plugin marketplace upgrade good-vibes-only`
+- Antigravity: `agy plugin install https://github.com/dinooo13/good-vibes-only/tree/main/plugins/good-vibes-only`
 
 ## Credits
 
