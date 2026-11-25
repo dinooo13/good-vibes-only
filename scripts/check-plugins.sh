@@ -92,32 +92,81 @@ for dir in plugins/*/; do
   printf '%s\n' "${agents_listed[@]}" | grep -qxF "$dir" || err "$dir is not listed in $AM"
 done
 
-# Every SKILL.md opens with frontmatter that has a description and a name matching its folder.
-# value KEY FILE: the key's value in the frontmatter; for a block scalar (> or |), its first line.
-value() {
-  awk -v key="$1" '
-    NR == 1 { if ($0 != "---") exit; next }
-    $0 == "---" { exit }
-    want { if ($0 ~ /^[ \t]+[^ \t]/) { sub(/^[ \t]+/, ""); print } exit }
-    index($0, key ":") == 1 {
-      v = substr($0, length(key) + 2); sub(/^[ \t]+/, "", v); sub(/[ \t]+$/, "", v)
-      if (v ~ /^[>|][-+0-9]*$/) { want = 1; next }
-      gsub(/^["'\'']|["'\'']$/, "", v); print v; exit
-    }' "$2"
+# Every SKILL.md opens with valid YAML frontmatter that has a description and a
+# name matching its folder. Strict YAML parsing catches unquoted `: ` scalars
+# that lenient parsers accept but strict ones (like T3 Code's Antigravity skill
+# scanner) silently drop.
+if python3 -c 'import yaml' >/dev/null 2>&1; then
+  yaml_parser=python3
+elif command -v ruby >/dev/null 2>&1; then
+  yaml_parser=ruby
+else
+  err "need python3 (PyYAML) or ruby to validate SKILL.md YAML frontmatter"
+  yaml_parser=none
+fi
+
+parse_frontmatter() {
+  case "$yaml_parser" in
+    python3)
+      python3 - "$1" <<'PY'
+import json, sys, yaml
+
+lines = open(sys.argv[1], encoding="utf-8").read().splitlines()
+if not lines or lines[0] != "---" or "---" not in lines[1:]:
+    sys.exit("no frontmatter between --- lines")
+end = lines.index("---", 1)
+try:
+    data = yaml.safe_load("\n".join(lines[1:end]))
+except yaml.YAMLError as exc:
+    msg = getattr(exc, "problem", None) or str(exc).splitlines()[0]
+    sys.exit(f"invalid YAML frontmatter: {msg}")
+if not isinstance(data, dict):
+    sys.exit("frontmatter must be a YAML mapping")
+print(json.dumps({
+    "name": data["name"] if isinstance(data.get("name"), str) else "",
+    "description": data["description"] if isinstance(data.get("description"), str) else "",
+}))
+PY
+      ;;
+    ruby)
+      ruby -ryaml -rjson - "$1" <<'RB'
+lines = File.read(ARGV[0], encoding: "UTF-8").lines.map(&:chomp)
+end_idx = lines[1..]&.index("---")
+abort "no frontmatter between --- lines" unless lines[0] == "---" && end_idx
+begin
+  data = YAML.safe_load(lines[1, end_idx].join("\n"))
+rescue Psych::Exception => exc
+  abort "invalid YAML frontmatter: #{exc.message.lines.first.strip}"
+end
+abort "frontmatter must be a YAML mapping" unless data.is_a?(Hash)
+puts JSON.generate({
+  "name" => data["name"].is_a?(String) ? data["name"] : "",
+  "description" => data["description"].is_a?(String) ? data["description"] : "",
+})
+RB
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
+
 skills=0
 while IFS= read -r S; do
   skills=$((skills + 1))
-  [ "$(head -1 "$S")" = "---" ] && [ "$(sed 1d "$S" | grep -cx -- '---')" -ge 1 ] ||
-    { err "$S has no frontmatter between --- lines"; continue; }
+  [ "$yaml_parser" = none ] && continue
+  if ! fm_json=$(parse_frontmatter "$S" 2>&1); then
+    err "$S: $fm_json"
+    continue
+  fi
   folder=$(basename "$(dirname "$S")")
   sdir=$(dirname "$S")
-  name=$(value name "$S")
+  name=$(jq -r '.name' <<< "$fm_json")
   [ -n "$name" ] || err "$S has no name"
   [ -z "$name" ] || [ "$name" = "$folder" ] || err "$S is named '$name' but lives in '$folder'"
   [ -z "$name" ] || { printf '%s\n' "$name" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$' && [ "${#name}" -le 64 ]; } ||
     err "$S name '$name' must be lowercase kebab-case (<= 64 chars)"
-  desc=$(value description "$S")
+  desc=$(jq -r '.description' <<< "$fm_json")
   [ -n "$desc" ] || err "$S has no description"
   [ "${#desc}" -le 1024 ] || err "$S description exceeds 1024 chars (${#desc})"
   [ -f "$sdir/README.md" ] || err "$sdir has no README.md"
