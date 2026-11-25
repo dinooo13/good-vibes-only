@@ -38,9 +38,10 @@ already said go.
 
 ## Each round
 
-1. **Critic.** Start a new `delegate_task` (`role: "review"`) with the newest
-   Fable or Opus at `xhigh`. Never reuse a critic. Outside T3, start a fresh
-   plain subagent instead.
+1. **Critic.** In T3 Code, always start a new `delegate_task` (`role: "review"`)
+   with the newest Fable or Opus at `xhigh`, never a native subagent tool.
+   Never reuse a critic. Only outside T3 (when `delegate_task` isn't
+   available), fall back to a fresh native subagent.
    - **Give it** the rubric, the references, the capture plan, the commit to
      judge, the round 1 critique for calibration, and (from round 2 on) the
      list of claimed fixes since last round.
@@ -82,7 +83,7 @@ thing, keep the old version one revert away.
 
 At the end, install or run the result for the user, and point them at the hard
 states. Write the lasting design decisions into `DESIGN.md` and link it from
-`CLAUDE.md`. Before shipping, remove `hill-climb/` (and any `.gitignore`
-entries added just for it) unless the user asks to keep the history. Report
-the score trajectory, what moved it, and what's left. Land it with `ship-it`
-if they ask.
+`CLAUDE.md` or `AGENTS.md` (whichever the repo uses). Before shipping, remove
+`hill-climb/` (and any `.gitignore` entries added just for it) unless the user
+asks to keep the history. Report the score trajectory, what moved it, and what's
+left. Land it with `ship-it` if they ask.

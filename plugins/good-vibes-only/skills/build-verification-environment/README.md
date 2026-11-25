@@ -16,4 +16,4 @@ It also writes the `## Verify` and `## Ship` sections that verify and ship-it re
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).

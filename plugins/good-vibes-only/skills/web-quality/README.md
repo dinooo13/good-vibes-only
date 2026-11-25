@@ -8,4 +8,4 @@ Lighthouse on the production build, a median of three runs per page and configur
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).

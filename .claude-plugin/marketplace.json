@@ -1,6 +1,6 @@
 {
   "name": "good-vibes-only",
-  "description": "Personal Claude Code plugins by dinooo13.",
+  "description": "Personal agent workflow plugins by dinooo13.",
   "owner": {
     "name": "Fabian Meyer",
     "url": "https://github.com/dinooo13"
@@ -9,7 +9,7 @@
     {
       "name": "good-vibes-only",
       "source": "./plugins/good-vibes-only",
-      "description": "Thirteen workflow skills for Claude Code and T3 Code: land and review changes, fan issues out to parallel agents, verify and polish products, and keep repos tidy.",
+      "description": "Thirteen workflow skills for Claude Code, Codex, Antigravity and T3 Code: land and review changes, fan issues out to parallel agents, verify and polish products, and keep repos tidy.",
       "category": "development"
     }
   ]

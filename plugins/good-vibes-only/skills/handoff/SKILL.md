@@ -17,9 +17,10 @@ Use the mode the user asks for. Default to launch when they want a new thread,
 otherwise to chat.
 
 - **chat:** print the brief.
-- **file:** write `.claude/handoff-<slug>.md`, uncommitted (check that
-  `.claude/` is gitignored, or tell the next session to remove it once read
-  so it doesn't dirty `git status`).
+- **file:** write `.agents/handoff-<slug>.md` (or `.claude/handoff-<slug>.md`
+  if the repo already uses `.claude/`), uncommitted. Check that the folder is
+  gitignored, or tell the next session to remove it once read so it doesn't
+  dirty `git status`.
 - **launch:** pass it as `message` to `t3_thread_launch`.
 - **goal:** a `/goal …` prompt under 4,000 characters. Put the stop condition
   first and move the details into a file like `PLAN.md`.

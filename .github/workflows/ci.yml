@@ -26,6 +26,13 @@ jobs:
           npm install --global --no-fund --no-audit @anthropic-ai/claude-code@2.1.316
           claude plugin validate .
           for p in plugins/*/; do claude plugin validate "$p"; done
+      - name: Antigravity's plugin validator
+        # Needs no login. Not --strict: install.sh always fetches latest agy,
+        # so new warnings in a CLI release shouldn't turn main red on their own.
+        run: |
+          curl -fsSL https://antigravity.google/cli/install.sh | bash
+          export PATH="$HOME/.local/bin:$PATH"
+          for p in plugins/*/; do agy plugin validate "$p"; done
       - name: ShellCheck
         run: git ls-files -z '*.sh' | xargs -0 shellcheck
       - name: build-verification-environment tests

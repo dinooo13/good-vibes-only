@@ -8,4 +8,4 @@ Green mocked tests aren't proof. verify picks the way to see the change working:
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).

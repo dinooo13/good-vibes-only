@@ -8,4 +8,4 @@ Give it a target ("at least 9 out of 10") and it brings in a fresh, independent 
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).

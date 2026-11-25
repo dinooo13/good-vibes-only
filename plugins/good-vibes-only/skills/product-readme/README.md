@@ -8,4 +8,4 @@ READMEs that sell the product to the people who'll use it: a one-line value, a h
 
 ---
 
-Part of [Good Vibes Only](../../../../README.md). The instructions Claude follows are in [SKILL.md](SKILL.md).
+Part of [Good Vibes Only](../../../../README.md). The instructions the agent follows are in [SKILL.md](SKILL.md).
