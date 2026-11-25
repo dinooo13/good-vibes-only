@@ -1,6 +1,6 @@
 ---
 name: review-loop
-description: Review a change with fresh reviewers (Opus xhigh and Kimi Pro by default), fix what they find, and repeat until they approve. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", or "review until it's clean", or asks another model to review a change before it merges.
+description: Review a change with fresh reviewers (Opus and Gemini Neon at xhigh by default), fix what they find, and repeat until they approve. With "council", three providers review in parallel. Use when the user says "review loop", "review rounds", "council", "get a fresh review", or "review until it's clean", or asks another model to review a change before it merges.
 ---
 
 # Review loop
@@ -15,11 +15,11 @@ Call `orchestrator_capabilities` and take the newest model of each family.
 Never hardcode IDs. A reviewer the user names wins.
 
 - **Default:** two reviewers in parallel: the newest Claude Opus at `xhigh`
-  and the newest Kimi Pro through OpenCode (K3.1 Pro today) at its highest
-  variant.
+  and the newest Gemini Neon through Antigravity (Gemini 4 Neon today) at
+  `xhigh` `thought_level`.
 - **Council:** one flagship per provider at high effort or above: the newest
-  Claude Opus, GPT Sol, and a third provider through OpenCode (Kimi Pro,
-  else GLM). If one can't run, say so instead of substituting.
+  Claude Opus, GPT Sol, and Gemini Neon through Antigravity. If one can't
+  run, say so instead of substituting.
 
 Start each reviewer with `delegate_task` (`role: "review"`, `mode: "async"`,
 a new `clientRequestId`). Every round is a new `delegate_task`, never
@@ -92,7 +92,7 @@ report.
 | Reviewer | Round 1 | Round 2 |
 | --- | --- | --- |
 | Claude Opus 5.5 (xhigh) | CHANGES | APPROVE |
-| Kimi K3.1 Pro (max) | CHANGES | APPROVE |
+| Gemini 4 Neon (xhigh) | CHANGES | APPROVE |
 ```
 
 Push only if the user asked you
