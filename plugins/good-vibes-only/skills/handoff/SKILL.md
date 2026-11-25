@@ -17,7 +17,9 @@ Use the mode the user asks for. Default to launch when they want a new thread,
 otherwise to chat.
 
 - **chat:** print the brief.
-- **file:** write `.claude/handoff-<slug>.md`, uncommitted.
+- **file:** write `.claude/handoff-<slug>.md`, uncommitted (check that
+  `.claude/` is gitignored, or tell the next session to remove it once read
+  so it doesn't dirty `git status`).
 - **launch:** pass it as `message` to `t3_thread_launch`.
 - **goal:** a `/goal …` prompt under 4,000 characters. Put the stop condition
   first and move the details into a file like `PLAN.md`.
@@ -49,8 +51,9 @@ words.
   uncommitted edits. Push too, unless you use `startFromOrigin: false`. Put
   that SHA under "Starting point".
 - **Code changes** get
-  `workspaceStrategy: {type: "worktree", baseRef, branch}`. To stack on a
-  branch, use it as `baseRef` with `startFromOrigin: false`.
+  `workspaceStrategy: {type: "worktree", baseRef: "origin/<default>", startFromOrigin: true, branch}`.
+  To stack on a local branch, use it as `baseRef` with
+  `startFromOrigin: false`.
 - **Read-only work** uses `{type: "root"}`, with "read only" written into the
   message.
 - Pass `projectId`, plus `environmentId` for another machine

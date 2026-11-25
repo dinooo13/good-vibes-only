@@ -13,8 +13,9 @@ starts at step 5, and "babysit the PR" starts at step 3.
 "PR" and "babysit the PR" alone stop at the merge gate. `almost-ship-it` is
 this skill without the merge; "ship it" after it starts at step 4.
 
-"Ship it" is permission for the test methods the proof needs, even where a
-project file says to ask first. Computer use stays as `verify` allows it.
+"Ship it" and "almost ship it" are permission for the test methods the proof
+needs, even where a project file says to ask first. Computer use stays as
+`verify` allows it.
 
 ## Project rules
 
@@ -38,31 +39,39 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    - Follow the repo's title style.
    - Write the description problem first, in the user's words, then the fix in
      two or three sentences, how you proved it, the review-loop table,
-     `Closes #N`, and the model/harness line.
+     `Closes #N`, and an attribution footer if used (e.g.
+     `Created with <model> in <harness>.`).
    - Check the PR for secrets.
 
-   Open a real PR, not a draft. Register it with `link_pull_request`.
+   Open a real PR, not a draft. Prefer T3's `pull_request_*` and `ci_*` tools
+   for PR and CI actions (`pull_request_create` opens and links); otherwise
+   fall back to `gh` (and call `link_pull_request` after opening).
 3. **Babysit.** Handle the existing checks and comments. If the gate in step
    4 already passes, go straight to step 4. On a head you just pushed, the
-   gate needs finished check runs; no checks reported yet is not green. Otherwise call
-   `watch_pull_request` and end your turn. Don't use sleep loops or
-   `gh pr checks --watch`. Children never watch; the owning thread does. On
-   each wake, act only on things newer than your latest push:
+   gate needs finished check runs (when the repo has checks); no checks
+   reported yet is not green. Otherwise call `watch_pull_request`
+   (`until: "merged"` when merging, `until: "checks"` when stopping at the
+   gate) and end your turn. Don't use sleep loops or `gh pr checks --watch`.
+   Children never watch; the owning thread does. On each wake, act only on
+   things newer than your latest push:
    - Check every bot finding against the code, and fix the real ones.
-   - Answer false positives with a written reason, following `pr-comments`.
-     Resolving a thread needs
-     `gh api graphql` with `resolveReviewThread`.
-   - Rerun a flaky infrastructure failure once
-     (`gh run rerun <id> --failed`).
+   - Answer false positives with a written reason, following `pr-comments`,
+     and resolve the bot's thread (`pull_request_respond` with
+     `resolved: true`, or `gh` outside T3).
+   - Rerun a flaky infrastructure failure once (`ci_rerun`, or `gh` outside
+     T3).
    - Decline scope creep with a reason, and list it as a follow-up.
 
-   If the user asked for a fresh review, run `review-loop` first.
+   If you entered at step 3 and the user asked for a fresh review, run
+   `review-loop` first.
 4. **Merge gate.** On the latest head, all of these must hold:
    - your proof covers the diff
-   - review-loop is done, unless it was skipped
+   - review-loop is done, unless it was skipped (re-run it only after
+     substantial babysitting fixes, not small bot tweaks)
    - required checks are green
-   - the bots the repo waits on, if it runs any (such as Greptile or
-     Macroscope), have reviewed it. CodeRabbit never gates.
+   - the bots the repo waits on, if it runs any (check `## Ship` or recent
+     PRs, such as Greptile or Macroscope), have reviewed it. CodeRabbit never
+     gates.
    - every finding is fixed or answered
    - no human review requests changes
    - GitHub reports the PR as up to date, not `BEHIND` or `DIRTY`
@@ -70,26 +79,26 @@ At the end, propose a section with the lines `Verify`, `Merge`,
    If it's behind, rebase, push with `--force-with-lease` (only this PR's
    branch) and wait for green again. Never use `--admin`. Without permission
    to merge, report it ready and call `unwatch_pull_request`. Otherwise run
-   `git fetch`, check the PR once more, and merge with the repo's method:
-   `gh pr merge --<method> --match-head-commit <gated sha>`. Many of the
-   user's repos are rebase only. Merge stacked PRs in order, rebasing the next
-   one onto the new base after each merge.
+   `git fetch`, check the PR once more, and merge with the repo's method
+   (`pull_request_merge` with `expectedHeadSha`, or `gh` outside T3). Many of
+   the user's repos are rebase only. Merge stacked PRs in order, rebasing the
+   next one onto the new base after each merge (or with `stack: true`).
 5. **After the merge.**
    - Pull main in the root checkout (`git -C <root> pull --ff-only`), if it's
      on the default branch and clean.
    - Run the `After merge` step from that fresh main: install, deploy or
      both. Replace only the installed copy of an app, never with `killall`.
    - For a deploy pipeline, find the run for the merge commit with
-     `gh run list --commit <sha>`. If it isn't there yet, retry once with a
-     background `sleep 30; gh run list --commit <sha>` and
-     `t3_background_wait`. Wait for the run with one background
-     `gh run watch <id> --exit-status`, then `t3_background_wait`.
+     `gh run list --commit <sha>`. If it isn't there yet, retry once after
+     about 30 seconds in the background. Wait for the run with one background
+     `gh run watch <id> --exit-status`, and wait for it to finish
+     (`t3_background_wait` if available).
    - Check the change live, the way `verify` checks production.
 6. **Clean up.** Call `unwatch_pull_request` if the watch is still on.
-   - Delete the branch on the remote and locally under `tidy-repos`'
-     "Merged means" rule, unless the repo deletes it itself. Skip a local
-     branch that a worktree has checked out (usually your own T3 worktree);
-     `tidy-repos` cleans it up later.
+   - Delete the branch on the remote and locally once its tip matches the
+     merged PR's head SHA or is an ancestor of the default branch, unless the
+     repo deletes it itself. Skip a local branch that a worktree has checked
+     out (usually your own T3 worktree); `tidy-repos` cleans it up later.
    - T3 settles the thread when its PR merges. If the user asked for it and the
      thread is still open, call `t3_thread_organize` with `settle`.
 
@@ -105,5 +114,6 @@ Report:
 
 Ask only when you are blocked: you can't prove the change, the gate can't
 pass, the step touches data or production beyond the deploy, or the goal is
-ambiguous. Ask with `AskUserQuestion`, putting the context and your
-recommendation in the question. Call `unwatch_pull_request` first.
+ambiguous. Ask the user (with your question tool if you have one), putting the
+context and your recommendation in the question. Call `unwatch_pull_request`
+first.

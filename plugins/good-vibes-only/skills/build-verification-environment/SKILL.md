@@ -30,7 +30,7 @@ build the whole plan. Skip what the repo doesn't need.
   UI in a known state, with stand-ins for hardware, network and models, and
   a scratch data dir. Expose a ready signal. Keep it out of release builds.
   (pladder `--overlay-demo`, a WebGL demo's `?shot=` with `window.__ready`,
-  yugioh-alpha `NUXT_E2E_SEED_CATALOG`, Debug-only sample scans in an iOS app)
+  ygo-alpha `NUXT_E2E_SEED_CATALOG`, Debug-only sample scans in an iOS app)
 - **Demo data.** Fictional, believable and committed, written by a seed
   script. Never real user data. (habit-tracker demo JSON)
 - **Shoot every screen.** `scripts/shoot.*` captures every screen and the
@@ -44,7 +44,7 @@ build the whole plan. Skip what the repo doesn't need.
 - **A CLI into the core.** Run the core logic on a file or input without the
   UI. (pladder `pladder-cli --process`, a headless physics sim for a game)
 - **A lock.** Only for repos that time things on shared hardware: copy
-  [`scripts/lock.sh`](scripts/lock.sh) and wrap every bench with it, as in
+  [`scripts/lock.sh`](../../scripts/lock.sh) and wrap every bench with it, as in
   `scripts/lock.sh gpu -- npm run bench`.
 
 Per platform:
@@ -73,7 +73,8 @@ script answers `--help`.
 Add to `CLAUDE.md`, or `AGENTS.md` if that is the one the repo uses:
 - **`## Verify`:** the command for each kind of change, the hard states,
   where output lands, the lock names, and what only a human can check.
-- **`## Ship`:** the lines `Verify`, `Merge`, `After merge` and `Live check`.
+- **`## Ship`:** the lines `Verify`, `Review`, `Merge`, `After merge` and
+  `Live check`.
 - **`## Working next to the user`:** their copy, port, data and simulator
   stay untouched; stop only what you started, by path or PID; no synthetic
   global input.

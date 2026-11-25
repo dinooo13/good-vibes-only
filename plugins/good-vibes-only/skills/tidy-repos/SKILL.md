@@ -8,8 +8,9 @@ description: Clean up git leftovers across local repositories. It deletes branch
 Delete only what is provably done. Everything else gets reported, never
 touched.
 
-**Scope:** the repo the user names. Otherwise every repo directly under
-`~/Developer`, plus `~/.t3/worktrees`.
+**Scope:** the repo the user names. Otherwise every project returned by
+`t3_project_list` (in T3), plus any repo directly under `~/Developer` if it
+exists, and `~/.t3/worktrees`.
 
 **Interactive runs** show the plan first, unless the user already said go.
 **Scheduled runs** act on the safe set and report the rest. Either way,
@@ -18,10 +19,11 @@ unmerged branches are only ever listed.
 ## Merged means
 
 A merged PR's head is the branch, and the tip equals the PR's `headRefOid` or
-is an ancestor of the default branch. Find these with
-`gh pr list --state merged --limit 200 --json headRefName,headRefOid`. Squash
-and rebase merges don't show up in `git branch --merged`. Check the local tip
-and `origin/<branch>` separately: one with later commits is not done.
+is an ancestor of the default branch. Check each candidate non-default branch
+(local or remote) with `gh pr list --state merged --head <branch> --json headRefOid`
+(or `pull_request_list` when available). Squash and rebase merges don't show up
+in `git branch --merged`. Check the local tip and `origin/<branch>` separately:
+one with later commits is not done.
 
 ## Per repo
 
@@ -38,8 +40,8 @@ and `origin/<branch>` separately: one with later commits is not done.
      hold ignored `.env` files, databases or `hill-climb/` media.
    - it belongs to no unsettled T3 thread. To check, call `t3_thread_list`
      with `allProjects: true`, `settled: false` and `includeSubagents: true`,
-     paging with `cursor` until the list ends. Then call `t3_worktree_list`
-     for each of those threads. Idle threads count too.
+     paging with `cursor` until the list ends. Then read each thread's
+     `worktreePath` with `t3_thread_read` (`limit: 1`). Idle threads count too.
 
    Then run `git worktree prune`.
 4. Delete merged local branches that no worktree has checked out, with

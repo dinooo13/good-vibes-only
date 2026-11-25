@@ -1,12 +1,12 @@
 #!/bin/bash
 # shellcheck disable=SC2015
-# Offline tests for build-verification-environment's lock.sh. Locks live in a temp dir.
+# Offline tests for good-vibes-only's shared lock.sh. Locks live in a temp dir.
 #
 # Usage: tests/build-verification-environment.sh
 set -uo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-L=$ROOT/plugins/good-vibes-only/skills/build-verification-environment/scripts/lock.sh
+L=$ROOT/plugins/good-vibes-only/scripts/lock.sh
 T=$(mktemp -d)
 trap 'rm -rf "$T"' EXIT
 
@@ -66,6 +66,33 @@ kill -TERM "$holder"; wait "$holder"; rc=$?
 [ "$rc" = 143 ] && ok "TERM exits 143" || nok "TERM exits 143" "exit $rc"
 kill -0 "$(cat "$T/child")" 2>/dev/null && nok "TERM stops the command" || ok "TERM stops the command"
 [ ! -e "$LOCK" ] && ok "released after TERM" || nok "released after TERM"
+
+# Stale lock from a dead same-user, same-host PID is reported and cleared automatically.
+true &
+dead_pid=$!
+wait "$dead_pid"
+mkdir -p "$LOCK"
+printf 'crashed-thread\n' >"$LOCK/owner"
+printf '%s:%s:%s\n' "$(id -un)" "$(hostname -s)" "$dead_pid" >"$LOCK/pid"
+expect "status reports stale lock" 1 "$L" --status gpu
+grep -q '^stale: crashed-thread$' "$T/out" && ok "status names stale owner" || nok "status names stale owner" "$(cat "$T/out")"
+expect "reaps stale lock and runs" 0 "$L" gpu -- sh -c 'echo recovered'
+grep -q '^recovered$' "$T/out" && ok "command runs after stale reap" || nok "command runs after stale reap" "$(cat "$T/out")"
+grep -q "cleared stale lock" "$T/out" && ok "stale reap logged" || nok "stale reap logged" "$(cat "$T/out")"
+[ ! -e "$LOCK" ] && ok "released after stale recovery" || nok "released after stale recovery"
+
+# A lock owned by another host is never reaped as stale.
+mkdir -p "$LOCK"
+printf 'remote-thread\n' >"$LOCK/owner"
+printf '%s:other-host:%s\n' "$(id -un)" "$dead_pid" >"$LOCK/pid"
+expect "status treats foreign-host lock as held" 1 "$L" --status gpu
+grep -q '^held: remote-thread$' "$T/out" && ok "foreign-host lock not marked stale" || nok "foreign-host lock not marked stale" "$(cat "$T/out")"
+(sleep 0.4; rm -rf "$LOCK") &
+releaser=$!
+expect "waits for foreign-host lock" 0 "$L" gpu -- sh -c 'echo after-remote'
+grep -q "waiting for $LOCK, held by: remote-thread" "$T/out" && ok "waited instead of reaping foreign lock" \
+  || nok "waited instead of reaping foreign lock" "$(cat "$T/out")"
+wait "$releaser"
 
 # stdin reaches the command.
 out=$(echo piped | "$L" gpu -- cat 2>/dev/null)

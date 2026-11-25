@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Prove that a change works by seeing it work, not by trusting mocked tests. Use the right tool per platform in T3 Code (preview browser for the web, device tools for simulators, the built app for macOS), cover the hard states, and report what is and isn't verified. Use when the user says "verify yourself", "check it in the preview browser", "test it in the simulator", and whenever another skill asks for proof inside T3 Code.
+description: Prove that a change works by seeing it work, not by trusting mocked tests. Use the right tool per platform in T3 Code (preview browser for the web, device tools for simulators, the built app for macOS), cover the hard states, and report what is and isn't verified. Use when the user says "verify yourself", "check it in the preview browser", "test it in the simulator", and whenever another skill asks for proof.
 ---
 
 # Verify
@@ -26,9 +26,10 @@ improvise, say so in the report and suggest `build-verification-environment`.
 - **Web:** run a dev server or a preview build, and use the T3 preview
   browser. Use `playwright-cli` only outside T3, or when the preview tools
   are missing:
-  - `preview_open` and `preview_navigate` to load the page
+  - `preview_status` first, then `preview_open` and `preview_navigate` to load
+    the page
   - `preview_act` to click and type
-  - `preview_snapshot` to look at it
+  - `preview_snapshot` with `includeImage: true` to look at it
   - `preview_resize` for 390, 768 and 1280 px
   - `preview_set_appearance` for light and dark
 
@@ -57,17 +58,17 @@ Bugs hide in the states nobody opens:
 - motion: typing, scrolling, animations
 
 Measurements on shared hardware (GPU, Neural Engine) run one at a time. Use
-the repo's `scripts/lock.sh` if it has one, otherwise the lock in `fan-out`'s
-**Shared resources** rules. Numbers taken while other agents load the
+the repo's `scripts/lock.sh` if it has one, otherwise
+[lock.sh](../../scripts/lock.sh). Numbers taken while other agents load the
 machine aren't proof.
 
 ## Respect the user's setup
 
 - If the user says they'll test it, leave that part to them.
-- Use computer use when the user asks for it or says they aren't using the
-  machine. Then you may also restart your own builds.
-- Never kill the user's running copy of an app or their dev server; stop only
-  what you started.
+- Use computer use (or launch focus-stealing GUI windows) only when the user
+  asks for it or says they aren't using the machine.
+- Never kill the user's running copy of an app or their dev server; restart
+  and stop only your own isolated build or server.
 - Leave a dev server running if the user wants to look at it.
 
 ## Report
